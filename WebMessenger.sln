@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B049F097-6F60-4682-8F92-DCBAEA984F2F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMessenger.Core", "src\WebMessenger.Core\WebMessenger.Core.csproj", "{094AB7B3-3337-49DB-98CA-05EDCFBFDBE7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMessenger.Application", "src\WebMessenger.Application\WebMessenger.Application.csproj", "{07207497-FD0D-4849-8FCB-94AEF92FE445}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMessenger.Infrastructure", "src\WebMessenger.Infrastructure\WebMessenger.Infrastructure.csproj", "{19B99162-4A4B-4138-B2E0-5851EBF92C48}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMessenger.Persistence", "src\WebMessenger.Persistence\WebMessenger.Persistence.csproj", "{95DCC30E-06B1-4486-ABF7-C7346C6FE63A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMessenger.API", "src\WebMessenger.API\WebMessenger.API.csproj", "{DEFB7E53-644A-4EB8-A38D-457B17BC2325}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMessenger.Web", "src\WebMessenger.Web\WebMessenger.Web.csproj", "{EE8579EF-085D-4A3E-9FDA-55794438D646}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{094AB7B3-3337-49DB-98CA-05EDCFBFDBE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{094AB7B3-3337-49DB-98CA-05EDCFBFDBE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{094AB7B3-3337-49DB-98CA-05EDCFBFDBE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{094AB7B3-3337-49DB-98CA-05EDCFBFDBE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07207497-FD0D-4849-8FCB-94AEF92FE445}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07207497-FD0D-4849-8FCB-94AEF92FE445}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07207497-FD0D-4849-8FCB-94AEF92FE445}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07207497-FD0D-4849-8FCB-94AEF92FE445}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19B99162-4A4B-4138-B2E0-5851EBF92C48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19B99162-4A4B-4138-B2E0-5851EBF92C48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19B99162-4A4B-4138-B2E0-5851EBF92C48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19B99162-4A4B-4138-B2E0-5851EBF92C48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95DCC30E-06B1-4486-ABF7-C7346C6FE63A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95DCC30E-06B1-4486-ABF7-C7346C6FE63A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95DCC30E-06B1-4486-ABF7-C7346C6FE63A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95DCC30E-06B1-4486-ABF7-C7346C6FE63A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEFB7E53-644A-4EB8-A38D-457B17BC2325}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEFB7E53-644A-4EB8-A38D-457B17BC2325}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEFB7E53-644A-4EB8-A38D-457B17BC2325}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEFB7E53-644A-4EB8-A38D-457B17BC2325}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE8579EF-085D-4A3E-9FDA-55794438D646}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE8579EF-085D-4A3E-9FDA-55794438D646}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE8579EF-085D-4A3E-9FDA-55794438D646}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE8579EF-085D-4A3E-9FDA-55794438D646}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{094AB7B3-3337-49DB-98CA-05EDCFBFDBE7} = {B049F097-6F60-4682-8F92-DCBAEA984F2F}
+		{07207497-FD0D-4849-8FCB-94AEF92FE445} = {B049F097-6F60-4682-8F92-DCBAEA984F2F}
+		{19B99162-4A4B-4138-B2E0-5851EBF92C48} = {B049F097-6F60-4682-8F92-DCBAEA984F2F}
+		{95DCC30E-06B1-4486-ABF7-C7346C6FE63A} = {B049F097-6F60-4682-8F92-DCBAEA984F2F}
+		{DEFB7E53-644A-4EB8-A38D-457B17BC2325} = {B049F097-6F60-4682-8F92-DCBAEA984F2F}
+		{EE8579EF-085D-4A3E-9FDA-55794438D646} = {B049F097-6F60-4682-8F92-DCBAEA984F2F}
+	EndGlobalSection
+EndGlobal

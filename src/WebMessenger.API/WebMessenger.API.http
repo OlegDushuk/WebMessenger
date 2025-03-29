@@ -1,0 +1,6 @@
+@WebMessenger.API_HostAddress = http://localhost:5294
+
+GET {{WebMessenger.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
