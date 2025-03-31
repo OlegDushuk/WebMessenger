@@ -14,7 +14,6 @@
   <ItemGroup>
     <ProjectReference Include="..\WebMessenger.Application\WebMessenger.Application.csproj" />
     <ProjectReference Include="..\WebMessenger.Infrastructure\WebMessenger.Infrastructure.csproj" />
-    <ProjectReference Include="..\WebMessenger.Persistence\WebMessenger.Persistence.csproj" />
   </ItemGroup>
 
 </Project>
