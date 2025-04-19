@@ -1,0 +1,15 @@
+﻿<div class="modal @(IsShow ? "modal_active" : "")">
+  <div class="modal__container">
+    <div class="modal__header">
+      <h2>Мій профіль</h2>
+      
+      <button class="btn btn_opacity modal__close-btn" @onclick="HandleCloseClick">
+        <CancelIcon />
+      </button>
+    </div>
+    
+    <div class="modal__content">
+      @ChildContent
+    </div>
+  </div>
+</div>

@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using WebMessenger.Application.Common;
 
 namespace WebMessenger.Application.Validators;
 
@@ -6,8 +7,10 @@ public class EmailValidator : AbstractValidator<string>
 {
   public EmailValidator()
   {
-    RuleFor(x => x)
-      .NotEmpty().WithMessage("Email is required")
-      .EmailAddress().WithMessage("Email is invalid");
+    RuleLevelCascadeMode = CascadeMode.Stop;
+    
+    RuleFor(email => email)
+      .NotEmpty().WithMessage(ErrorMessages.IsRequired)
+      .EmailAddress().WithMessage(ErrorMessages.InvalidFormat);
   }
 }

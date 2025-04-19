@@ -16,7 +16,12 @@ public static class DependencyInjection
     services.AddDbContext<WebMessengerDbContext>(options =>
       options.UseSqlServer(
         configuration.GetConnectionString("DefaultConnection"),
-        b => b.MigrationsAssembly("WebMessenger.Infrastructure")));
+        sqlOptions =>
+        {
+          sqlOptions.MigrationsAssembly("WebMessenger.Infrastructure");
+          sqlOptions.EnableRetryOnFailure();
+        }
+      ));
     
     services.AddScoped<IUserRepository, UserRepository>();
     services.AddScoped<IEmailVerificationTokenRepository, EmailVerificationTokenRepository>();

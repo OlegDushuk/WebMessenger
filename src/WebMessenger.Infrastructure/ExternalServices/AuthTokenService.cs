@@ -18,7 +18,7 @@ public class AuthTokenService(IOptions<JwtSettings> settings) : IAuthTokenServic
 {
   private readonly JwtSettings _jwtSettings = settings.Value;
   
-  public (string, DateTime) GenerateAccessToken(User user)
+  public string GenerateAccessToken(User user)
   {
     var claims = new List<Claim>
     {
@@ -28,14 +28,14 @@ public class AuthTokenService(IOptions<JwtSettings> settings) : IAuthTokenServic
     var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
     var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
     var expires = DateTime.UtcNow.AddMinutes(_jwtSettings.Expiration);
-
+    
     var token = new JwtSecurityToken(
       claims: claims,
       expires: expires,
       signingCredentials: credentials
     );
 
-    return (new JwtSecurityTokenHandler().WriteToken(token), expires);
+    return new JwtSecurityTokenHandler().WriteToken(token);
   }
 
   public RefreshToken GenerateRefreshToken(Guid userId)

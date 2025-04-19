@@ -4,6 +4,6 @@ namespace WebMessenger.Core.Interfaces.Services;
 
 public interface IAuthTokenService
 {
-  (string, DateTime) GenerateAccessToken(User user);
+  string GenerateAccessToken(User user);
   RefreshToken GenerateRefreshToken(Guid userId);
 }

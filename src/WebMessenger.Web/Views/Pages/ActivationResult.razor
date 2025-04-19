@@ -1,0 +1,42 @@
+﻿@page "/activation-result/{token}"
+@layout AuthLayout
+
+@if (_isLoading)
+{
+  <Loading Title="Активація..." />
+}
+else
+{
+  if (_isSuccess)
+  {
+    <article class="auth-page__container auth-page__container_width_lg">
+      <div class="auth-page__item">
+        <h3 class="auth-page__title">Обліковий запис успішно активовано</h3>
+      </div>
+      
+      <div class="auth-page__item">
+        <p>Ваш обліковий запис успішно активовано.</p>
+      </div>
+      
+      <div class="auth-page__item">
+        <NavLink href="auth/login">Увійти</NavLink>
+      </div>
+    </article>
+  }
+  else
+  {
+    <article class="auth-page__container auth-page__container_width_lg">
+      <div class="auth-page__item">
+        <h3 class="auth-page__title">Невдала активація</h3>
+      </div>
+      
+      <div class="auth-page__item">
+        <p>Це посилання активації облікового запису не дійсне. Спробуйте надіслати лист повторно.</p>
+      </div>
+      
+      <div class="auth-page__item">
+        <NavLink href="/auth/activation" >Надіслати повторно</NavLink>
+      </div>
+    </article>
+  }
+}

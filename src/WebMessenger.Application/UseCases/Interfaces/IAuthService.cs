@@ -10,10 +10,8 @@ public interface IAuthService
   Task<Result> VerifyEmailAsync(string token);
   Task<Result> ResendVerifyAsync(string email);
   Task<Result<AuthDto>> LoginAsync(LoginDto dto);
-  Task<Result<(string, DateTime)>> RefreshTokenAsync(string token);
+  Task<Result<string>> RefreshTokenAsync(string token);
   Task<Result> RevokeTokenAsync(string token);
   Task<Result> ForgotPasswordAsync(string email);
   Task<Result> ResetPasswordAsync(ResetPasswordDto dto);
-  Task<Result<UserDto>> GetUserAsync(string email);
-  Task<Result> DeleteUserAsync(string email);
 }

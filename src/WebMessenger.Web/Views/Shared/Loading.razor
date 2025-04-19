@@ -1,0 +1,10 @@
+﻿<main class="loading-page">
+  @if (Title != null)
+  {
+    <p class="loading-page__title">@Title</p>
+  }
+</main>
+
+@code {
+  [Parameter] public string? Title { get; set; }
+}

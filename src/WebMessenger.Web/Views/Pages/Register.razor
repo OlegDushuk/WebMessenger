@@ -1,0 +1,105 @@
+﻿@page "/auth/reg"
+@layout AuthLayout
+
+<article class="auth-page__container">
+  
+  <div class="auth-page__item">
+    <h3 class="auth-page__title">Реєстрація</h3>
+  </div>
+
+  <div class="auth-page__item">
+    <AuthForm TModel="RegisterModel" Model="_model" OnValidSubmit="RegisterAsync">
+      <DataAnnotationsValidator/>
+
+      <div class="auth-page__item">
+        <div class="auth-page__form-control">
+          <label for="name" class="auth-page__field-label">Ім'я</label>
+          <InputText class="field"
+                     id="name"
+                     Value="@_model.Name"
+                     ValueChanged="val => _model.Name = val"
+                     ValueExpression="() => _model.Name"
+                     placeholder="Ваше ім'я..."/>
+          <ValidationMessage class="auth-page__field-error" For="() => _model.Name"/>
+        </div>
+      </div>
+
+      <div class="auth-page__item">
+        <div class="auth-page__form-control">
+          <label for="username" class="auth-page__field-label">Ім'я користувача</label>
+          <InputText class="field"
+                     id="username"
+                     Value="@_model.UserName"
+                     ValueChanged="val => _model.UserName = val"
+                     ValueExpression="() => _model.UserName"
+                     placeholder="Придумайте ім'я користувача..."/>
+          <ValidationMessage class="auth-page__field-error" For="() => _model.UserName"/>
+        </div>
+      </div>
+
+      <div class="auth-page__item">
+        <div class="auth-page__form-control">
+          <label for="email" class="auth-page__field-label">Ел. пошта</label>
+          <InputText class="field"
+                     id="email"
+                     Value="@_model.Email"
+                     ValueChanged="val => _model.Email = val"
+                     ValueExpression="() => _model.Email"
+                     placeholder="Ваша ел. пошта..."/>
+          <ValidationMessage class="auth-page__field-error" For="() => _model.Email"/>
+        </div>
+      </div>
+
+      <div class="auth-page__item">
+        <div class="auth-page__form-control">
+          <label for="password" class="auth-page__field-label">Пароль</label>
+          <InputText class="field"
+                     type="password"
+                     id="password"
+                     Value="@_model.Password"
+                     ValueChanged="val => _model.Password = val"
+                     ValueExpression="() => _model.Password"
+                     placeholder="Придумайте пароль..."/>
+          <ValidationMessage class="auth-page__field-error" For="() => _model.Password"/>
+        </div>
+      </div>
+
+      <div class="auth-page__item">
+        <div class="auth-page__form-control">
+          <label for="passwordConfirm" class="auth-page__field-label">Пароль</label>
+          <InputText class="field"
+                     type="password"
+                     id="passwordConfirm"
+                     Value="@_model.ConfirmPassword"
+                     ValueChanged="val => _model.ConfirmPassword = val"
+                     ValueExpression="() => _model.ConfirmPassword"
+                     placeholder="Повторіть пароль..."/>
+          <ValidationMessage class="auth-page__field-error" For="() => _model.ConfirmPassword"/>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn_form-submit" disabled="@_isLoading">
+        @if (_isLoading)
+        {
+          <p>Зачекайте...</p>
+        }
+        else
+        {
+          <p>Зареєструватись</p>
+        }
+      </button>
+    </AuthForm>
+  </div>
+
+  <div class="auth-page__item">
+    @if (_error != null)
+    {
+      <p class="auth-page__field-error">@_error</p>
+    }
+  </div>
+
+  <div class="auth-page__item">
+    <NavLink href="auth/login">Увійти</NavLink>
+  </div>
+
+</article>

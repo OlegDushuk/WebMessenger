@@ -1,0 +1,55 @@
+﻿@page "/"
+
+@inject IAuthState AuthState
+@inject IUserState UserState
+
+@if (AuthState.IsAuthenticated)
+{
+  <main class="main-page">
+    <ProfileModal ModalController="_profileModalController" />
+
+    <aside class="main-page__sidebar sidebar">
+      <ul class="sidebar__inner">
+        <li class="sidebar__item">
+          <article class="profile-bar">
+            <div class="profile-bar__info">
+              @if (@UserState.User != null)
+              {
+                <div class="profile-bar__item">
+                  <Avatar Url="@UserState.User.AvatarUrl" Width="50" Height="50" />
+                </div>
+
+                <div class="profile-bar__item">
+                  <p class="profile-bar__full-name user-full-name">@UserState.User.Name</p>
+                  <p class="profile-bar__username">@@@UserState.User.UserName</p>
+                </div>
+              }
+              else
+              {
+                <p>...</p>
+              }
+            </div>
+
+            <div class="profile-bar__item">
+              <button class="btn btn_opacity" @onclick="@OpenProfile">
+                <MenuBurgerIcon/>
+              </button>
+            </div>
+          </article>
+        </li>
+
+
+      </ul>
+    </aside>
+
+    <div>
+      <article>
+
+      </article>
+    </div>
+  </main>
+}
+else
+{
+  <Loading Title="Автентифікація користувача..." />
+}

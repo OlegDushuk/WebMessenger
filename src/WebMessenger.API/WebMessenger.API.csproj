@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\WebMessenger.Shared\WebMessenger.Shared.csproj" />
     <ProjectReference Include="..\WebMessenger.Application\WebMessenger.Application.csproj" />
     <ProjectReference Include="..\WebMessenger.Infrastructure\WebMessenger.Infrastructure.csproj" />
   </ItemGroup>

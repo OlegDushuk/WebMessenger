@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using WebMessenger.Application.Common;
 
 namespace WebMessenger.Application.Validators;
 
@@ -6,11 +7,13 @@ public class PasswordValidator : AbstractValidator<string>
 {
   public PasswordValidator()
   {
-    RuleFor(p => p)
-      .NotEmpty().WithMessage("Password is required")
-      .MinimumLength(6).WithMessage("Password must be at least 6 characters")
-      .Matches("[A-Z]").WithMessage("Password must contain at least one uppercase letter")
-      .Matches("[0-9]").WithMessage("Password must contain at least one number")
-      .Matches("[^a-zA-Z0-9]").WithMessage("Password must contain at least one special character");
+    RuleLevelCascadeMode = CascadeMode.Stop;
+    
+    RuleFor(password => password)
+      .NotEmpty().WithMessage(ErrorMessages.IsRequired)
+      .MinimumLength(6).WithMessage(ErrorMessages.MinSize(6))
+      .Matches("[A-Z]").WithMessage(ErrorMessages.MustContainUppercaseLetter)
+      .Matches("[0-9]").WithMessage(ErrorMessages.MustContainNumber)
+      .Matches("[^a-zA-Z0-9]").WithMessage(ErrorMessages.MustContainSpecialCharacter);
   }
 }

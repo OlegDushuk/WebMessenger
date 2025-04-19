@@ -1,4 +1,5 @@
-﻿using WebMessenger.Application.Common.Enums;
+﻿using WebMessenger.Application.Common;
+using WebMessenger.Application.Common.Enums;
 using WebMessenger.Application.Common.Models;
 using WebMessenger.Application.DTOs.Requests;
 using WebMessenger.Application.DTOs.Responses;
@@ -30,10 +31,10 @@ public class AuthService(
     if (!validationResult.IsValid)
     {
       var errorDictionary = validationResult.Errors
-        .GroupBy(e => e.PropertyName)
+        .GroupBy(x => x.PropertyName)
         .ToDictionary(
-          g => g.Key,
-          g => g.Select(e => e.ErrorMessage).ToArray()
+          g => g.Key.ToLower(),
+          g => g.First().ErrorMessage
         );
       
       return Result.Failure(
@@ -41,9 +42,22 @@ public class AuthService(
         errorDictionary
       );
     }
-    
+
     if (await userRepository.ExistsByEmailAsync(dto.Email))
-      return Result.Failure(ErrorType.Conflict, "User by this email already exists");
+      return Result.Failure(
+        ErrorType.Conflict,
+        new
+        {
+          Email = ErrorMessages.EmailAlreadyInUse
+        });
+
+    if (await userRepository.ExistsByUserNameAsync(dto.UserName))
+      return Result.Failure(
+        ErrorType.Conflict,
+        new
+        {
+          Username = ErrorMessages.UserNameAlreadyInUse
+        });
     
     var user = new User
     {
@@ -58,7 +72,7 @@ public class AuthService(
     var verificationToken = new EmailVerificationToken
     {
       UserId = id,
-      Token = Guid.NewGuid().ToString(),
+      Token = Guid.NewGuid().ToString("N"),
       ExpiresAt = DateTime.UtcNow.AddDays(2),
     };
     await verTokenRepository.CreateAsync(verificationToken);
@@ -71,20 +85,33 @@ public class AuthService(
   public async Task<Result> VerifyEmailAsync(string token)
   {
     if (string.IsNullOrEmpty(token))
-      return Result.Failure(ErrorType.Validation, "Token is required");
+      return Result.Failure(
+        ErrorType.Validation,
+        ErrorMessages.IsRequired
+      );
     
     var verToken = await verTokenRepository.GetByTokenAsync(token);
     if (verToken == null)
-      return Result.Failure(ErrorType.NotFound, "Token not found");
+      return Result.Failure(
+        ErrorType.NotFound,
+        ErrorMessages.EntityNotFound("Token")
+      );
     
     if (verToken.ExpiresAt < DateTime.UtcNow)
-      return Result.Failure(ErrorType.Conflict, "Token is expired");
+      return Result.Failure(
+        ErrorType.Conflict,
+        ErrorMessages.TimeExpired
+      );
     
     var user = await userRepository.GetByIdAsync(verToken.UserId);
     if (user == null)
     {
       await verTokenRepository.DeleteAsync(verToken.Id);
-      return Result.Failure(ErrorType.NotFound, "User by this token not found");
+      
+      return Result.Failure(
+        ErrorType.NotFound,
+        ErrorMessages.EntityNotFound("User")
+      );
     }
     
     user.IsActive = true;
@@ -101,7 +128,7 @@ public class AuthService(
     {
       return Result.Failure(
         ErrorType.Validation,
-        validationResult.Errors.Select(e => e.ErrorMessage).ToArray()
+        validationResult.Errors.First().ErrorMessage
       );
     }
     
@@ -109,13 +136,13 @@ public class AuthService(
     if (user == null)
       return Result.Failure(
         ErrorType.NotFound,
-        "User by this email not found"
+        "USER_BY_THIS_EMAIL_NOT_FOUND"
       );
     
     if (user.IsActive)
       return Result.Failure(
         ErrorType.Conflict,
-        "User is active"
+        "USER_IS_ACTIVE"
       );
 
     var existsToken = await verTokenRepository.GetByUserIdAsync(user.Id);
@@ -143,8 +170,8 @@ public class AuthService(
       var errorDictionary = validationResult.Errors
         .GroupBy(e => e.PropertyName)
         .ToDictionary(
-          g => g.Key,
-          g => g.Select(e => e.ErrorMessage).ToArray()
+          g => g.Key.ToLower(),
+          g => g.First().ErrorMessage
         );
       
       return Result<AuthDto>.Failure(
@@ -157,26 +184,31 @@ public class AuthService(
     if (user == null)
       return Result<AuthDto>.Failure(
         ErrorType.NotFound,
-        "User by this email not found"
-      );
+        new
+        {
+          Email = "USER_BY_THIS_EMAIL_NOT_FOUND"
+        });
     
     if (!user.IsActive)
       return Result<AuthDto>.Failure(
         ErrorType.Conflict,
-        "Account is not active"
-      );
+        new
+        {
+          Other = "ACCOUNT_NOT_ACTIVE"
+        });
     
     if (!passwordService.VerifyPassword(dto.Password, user.PasswordHash!))
       return Result<AuthDto>.Failure(
         ErrorType.Conflict,
-        "Password is incorrect"
-      );
+        new
+        {
+          Password = "PASSWORD_INVALID"
+        });
     
-    var (accessToken, expires) = authTokenService.GenerateAccessToken(user);
+    var accessToken = authTokenService.GenerateAccessToken(user);
     var auth = new AuthDto
     {
       AccessToken = accessToken,
-      Expires = expires
     };
     
     if (dto.RememberMe)
@@ -189,35 +221,35 @@ public class AuthService(
     return Result<AuthDto>.Success(auth);
   }
   
-  public async Task<Result<(string, DateTime)>> RefreshTokenAsync(string token)
+  public async Task<Result<string>> RefreshTokenAsync(string token)
   {
     var refToken = await refTokenRepository.GetByTokenAsync(token);
     if (refToken == null)
-      return Result<(string, DateTime)>.Failure(ErrorType.NotFound, "Token not found");
-
+      return Result<string>.Failure(ErrorType.NotFound, "Token not found");
+    
     if (refToken.ExpiresAt < DateTime.UtcNow)
     {
       await refTokenRepository.DeleteAsync(refToken.Id);
-      return Result<(string, DateTime)>.Failure(ErrorType.Conflict, "Token is expired");
+      return Result<string>.Failure(ErrorType.Conflict, "Token is expired");
     }
     
     var user = await userRepository.GetByIdAsync(refToken.UserId);
     if (user == null)
     {
       await refTokenRepository.DeleteAsync(refToken.Id);
-      return Result<(string, DateTime)>.Failure(ErrorType.NotFound, "User by this token not found");
+      return Result<string>.Failure(ErrorType.NotFound, "User by this token not found");
     }
     
-    var (accessToken, expires) = authTokenService.GenerateAccessToken(user);
+    var accessToken = authTokenService.GenerateAccessToken(user);
     
-    return Result<(string, DateTime)>.Success((accessToken, expires));
+    return Result<string>.Success(accessToken);
   }
   
   public async Task<Result> RevokeTokenAsync(string token)
   {
     var refToken = await refTokenRepository.GetByTokenAsync(token);
     if (refToken == null)
-      return Result<(string, DateTime)>.Failure(ErrorType.NotFound, "Token not found");
+      return Result.Failure(ErrorType.NotFound, "TOKEN_NOT_FOUND");
     
     await refTokenRepository.DeleteAsync(refToken.Id);
     return Result.Success;
@@ -227,20 +259,18 @@ public class AuthService(
   {
     var validationResult = await emailValidator.ValidateAsync(email);
     if (!validationResult.IsValid)
-    {
       return Result.Failure(
         ErrorType.Validation,
-        validationResult.Errors.Select(e => e.ErrorMessage).ToArray()
+        validationResult.Errors[0].ErrorMessage
       );
-    }
     
     var user = await userRepository.GetByEmailAsync(email);
     if (user == null)
       return Result<UserDto>.Failure(
         ErrorType.NotFound,
-        "User by this email not found"
+        "USER_BY_THIS_EMAIL_NOT_FOUND"
       );
-
+    
     var token = new ResetPasswordToken
     {
       UserId = user.Id,
@@ -248,7 +278,7 @@ public class AuthService(
       ExpiresAt = DateTime.UtcNow.AddDays(2),
     };
     await resetPasswordTokenRepository.CreateAsync(token);
-    await emailService.SendEmailVerificationAsync(email, token.Token);
+    await emailService.SendPasswordResetAsync(email, token.Token);
     
     return Result.Success;
   }
@@ -260,76 +290,24 @@ public class AuthService(
     {
       return Result.Failure(
         ErrorType.Validation,
-        validationResult.Errors.Select(e => e.ErrorMessage).ToArray()
+        validationResult.Errors[0].ErrorMessage
       );
     }
     
     var resToken = await resetPasswordTokenRepository.GetByTokenAsync(dto.Token);
     if (resToken == null)
-      return Result<(string, DateTime)>.Failure(ErrorType.NotFound, "Token not found");
+      return Result.Failure(ErrorType.NotFound, "TOKEN_NOT_FOUND");
     
     var user = await userRepository.GetByIdAsync(resToken.UserId);
     if (user == null)
     {
       await resetPasswordTokenRepository.DeleteAsync(resToken);
-      return Result<(string, DateTime)>.Failure(ErrorType.NotFound, "User by this token not found");
+      return Result.Failure(ErrorType.NotFound, "USER_BY_THIS_TOKEN_NOT_FOUND");
     }
     
     user.PasswordHash = passwordService.HashPassword(dto.NewPassword);
     await userRepository.UpdateAsync(user);
-    
-    return Result.Success;
-  }
-  
-  public async Task<Result<UserDto>> GetUserAsync(string email)
-  {
-    var validationResult = await emailValidator.ValidateAsync(email);
-    if (!validationResult.IsValid)
-    {
-      return Result<UserDto>.Failure(
-        ErrorType.Validation,
-        validationResult.Errors.Select(e => e.ErrorMessage).ToArray()
-      );
-    }
-    
-    var user = await userRepository.GetByEmailAsync(email);
-    if (user == null)
-      return Result<UserDto>.Failure(
-        ErrorType.NotFound,
-        "User by this email not found"
-      );
-    
-    var userDto = new UserDto
-    {
-      UserName = user.UserName!,
-      Email = user.Email!,
-      Name = user.Name!,
-      Avatar = user.Avatar!,
-      Bio = user.Bio!,
-    };
-    
-    return Result<UserDto>.Success(userDto);
-  }
-  
-  public async Task<Result> DeleteUserAsync(string email)
-  {
-    var validationResult = await emailValidator.ValidateAsync(email);
-    if (!validationResult.IsValid)
-    {
-      return Result.Failure(
-        ErrorType.Validation,
-        validationResult.Errors.Select(e => e.ErrorMessage).ToArray()
-      );
-    }
-    
-    var user = await userRepository.GetByEmailAsync(email);
-    if (user == null)
-      return Result.Failure(
-        ErrorType.NotFound,
-        "User by this email not found"
-      );
-
-    await userRepository.DeleteAsync(user);
+    await resetPasswordTokenRepository.DeleteAsync(resToken);
     
     return Result.Success;
   }

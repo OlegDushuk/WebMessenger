@@ -1,10 +1,9 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebMessenger.API.Models.Requests;
-using WebMessenger.Application.Common.Enums;
+using WebMessenger.API.Extensions;
 using WebMessenger.Application.DTOs.Requests;
 using WebMessenger.Application.UseCases.Interfaces;
+using WebMessenger.Shared.Models;
 
 namespace WebMessenger.API.Controllers;
 
@@ -13,7 +12,7 @@ namespace WebMessenger.API.Controllers;
 public class AuthController(IAuthService authService) : ControllerBase
 {
   [HttpPost("reg")]
-  public async Task<IActionResult> Register([FromBody]RegisterRequest request)
+  public async Task<IActionResult> Register([FromBody] RegisterRequest request)
   {
     var dto = new RegisterDto
     {
@@ -24,18 +23,13 @@ public class AuthController(IAuthService authService) : ControllerBase
     };
 
     var result = await authService.RegisterAsync(dto);
-    
+
     if (result.IsSuccess)
       return Ok();
     
-    return result.Error.Type switch
-    {
-      ErrorType.Validation => BadRequest(result.Error.Info),
-      ErrorType.Conflict => Conflict(result.Error.Info),
-      _ => BadRequest(result.Error.Info)
-    };
+    return this.ProcessError(result.Error);
   }
-  
+
   [HttpPost("verify")]
   public async Task<IActionResult> VerifyEmail([FromQuery] string token)
   {
@@ -44,12 +38,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     if (result.IsSuccess)
       return Ok();
     
-    return result.Error.Type switch
-    {
-      ErrorType.NotFound => NotFound(result.Error.Info),
-      ErrorType.Conflict => Conflict(result.Error.Info),
-      _ => BadRequest(result.Error.Info)
-    };
+    return this.ProcessError(result.Error);
   }
   
   [HttpPost("resend-verify")]
@@ -60,13 +49,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     if (result.IsSuccess)
       return Ok();
     
-    return result.Error.Type switch
-    {
-      ErrorType.Validation => BadRequest(result.Error.Info),
-      ErrorType.NotFound => NotFound(result.Error.Info),
-      ErrorType.Conflict => Conflict(result.Error.Info),
-      _ => BadRequest(result.Error.Info)
-    };
+    return this.ProcessError(result.Error);
   }
   
   [HttpPost("login")]
@@ -78,27 +61,23 @@ public class AuthController(IAuthService authService) : ControllerBase
       Password = request.Password,
       RememberMe = request.RememberMe
     });
+
+    if (!result.IsSuccess)
+      return this.ProcessError(result.Error);
     
-    if (result.IsSuccess)
-    {
-      if (result.Data!.RefreshToken != null)
-        Response.Cookies.Append("RefreshToken", result.Data!.RefreshToken!);
-      return Ok(new
-      {
-        result.Data!.AccessToken, result.Data!.Expires,
-      });
-    }
+    if (result.Data == null)
+      throw new NullReferenceException(nameof(result.Data));
     
-    return result.Error.Type switch
+    if (result.Data.RefreshToken != null)
+      Response.Cookies.Append("RefreshToken", result.Data.RefreshToken);
+      
+    return Ok(new AuthResult
     {
-      ErrorType.Validation => BadRequest(result.Error.Info),
-      ErrorType.NotFound => NotFound(result.Error.Info),
-      ErrorType.Conflict => Conflict(result.Error.Info),
-      _ => BadRequest(result.Error.Info)
-    };
+      Token = result.Data.AccessToken,
+    });
   }
   
-  [HttpPost("refresh-token")]
+  [HttpGet("refresh-token")]
   public async Task<IActionResult> RefreshToken()
   {
     var token = Request.Cookies["RefreshToken"];
@@ -106,23 +85,18 @@ public class AuthController(IAuthService authService) : ControllerBase
       return Unauthorized();
     
     var result = await authService.RefreshTokenAsync(token);
+    if (result.Data == null)
+      throw new NullReferenceException(nameof(result.Data));
     
     if (result.IsSuccess)
     {
-      return Ok(new
+      return Ok(new AuthResult
       {
-        AccessToken = result.Data.Item1,
-        Expires = result.Data.Item2,
+        Token = result.Data,
       });
     }
     
-    return result.Error.Type switch
-    {
-      ErrorType.Validation => BadRequest(result.Error.Info),
-      ErrorType.NotFound => NotFound(result.Error.Info),
-      ErrorType.Conflict => Conflict(result.Error.Info),
-      _ => BadRequest(result.Error.Info)
-    };
+    return this.ProcessError(result.Error);
   }
   
   [Authorize]
@@ -132,17 +106,14 @@ public class AuthController(IAuthService authService) : ControllerBase
     var token = Request.Cookies["RefreshToken"];
     if (string.IsNullOrEmpty(token))
       return Unauthorized();
-
+    
     var result = await authService.RevokeTokenAsync(token);
+    Response.Cookies.Delete("RefreshToken");
     
-    if (result.IsSuccess)
-      return Ok();
+    if (!result.IsSuccess)
+      return this.ProcessError(result.Error);
     
-    return result.Error.Type switch
-    {
-      ErrorType.NotFound => NotFound(result.Error.Info),
-      _ => BadRequest(result.Error.Info)
-    };
+    return Ok();
   }
   
   [HttpPost("forgot-password")]
@@ -153,12 +124,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     if (result.IsSuccess)
       return Ok();
     
-    return result.Error.Type switch
-    {
-      ErrorType.Validation => BadRequest(result.Error.Info),
-      ErrorType.NotFound => NotFound(result.Error.Info),
-      _ => BadRequest(result.Error.Info)
-    };
+    return this.ProcessError(result.Error);
   }
   
   [HttpPost("reset-password")]
@@ -173,47 +139,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     if (result.IsSuccess)
       return Ok();
     
-    return result.Error.Type switch
-    {
-      ErrorType.Validation => BadRequest(result.Error.Info),
-      ErrorType.NotFound => NotFound(result.Error.Info),
-      _ => BadRequest(result.Error.Info)
-    };
-  }
-  
-  [Authorize]
-  [HttpGet("user")]
-  public async Task<IActionResult> GetUser()
-  {
-    var email = User.FindFirst(ClaimTypes.Email)!.Value;
-    var result = await authService.GetUserAsync(email);
-    
-    if (result.IsSuccess)
-      return Ok(new { User = result.Data! });
-    
-    return result.Error.Type switch
-    {
-      ErrorType.Validation => BadRequest(result.Error.Info),
-      ErrorType.NotFound => NotFound(result.Error.Info),
-      _ => BadRequest(result.Error.Info)
-    };
-  }
-  
-  [Authorize]
-  [HttpGet("delete")]
-  public async Task<IActionResult> Delete()
-  {
-    var email = User.FindFirst(ClaimTypes.Email)!.Value;
-    var result = await authService.DeleteUserAsync(email);
-      
-      if (result.IsSuccess)
-        return Ok();
-      
-    return result.Error.Type switch
-    {
-      ErrorType.Validation => BadRequest(result.Error.Info),
-      ErrorType.NotFound => NotFound(result.Error.Info),
-      _ => BadRequest(result.Error.Info)
-    };
+    return this.ProcessError(result.Error);
   }
 }
+

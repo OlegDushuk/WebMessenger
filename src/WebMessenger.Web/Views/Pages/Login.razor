@@ -1,0 +1,75 @@
+﻿@page "/auth/login"
+@layout AuthLayout
+
+<article class="auth-page__container">
+  
+  <div class="auth-page__item">
+    <h3 class="auth-page__title">Вхід</h3>
+  </div>
+
+  <div class="auth-page__item">
+    <AuthForm TModel="LoginModel" Model="@_model" OnValidSubmit="LoginAsync">
+      <DataAnnotationsValidator />
+
+      <div class="auth-page__item">
+        <div class="auth-page__form-control">
+          <label for="email" class="auth-page__field-label">Ел. пошта</label>
+          <InputText class="field"
+                     id="email"
+                     Value="@_model.Email"
+                     ValueChanged="val => _model.Email = val"
+                     ValueExpression="() => _model.Email"
+                     placeholder="Ваша ел. пошта..."/>
+          <ValidationMessage class="auth-page__field-error" For="() => _model.Email"/>
+        </div>
+      </div>
+
+      <div class="auth-page__item">
+        <div class="auth-page__form-control">
+          <label for="password" class="auth-page__field-label">Пароль</label>
+          <InputText class="field"
+                     type="password"
+                     id="password"
+                     Value="@_model.Password"
+                     ValueChanged="val => _model.Password = val"
+                     ValueExpression="() => _model.Password"
+                     placeholder="Ваш пароль..."/>
+          <ValidationMessage class="auth-page__field-error" For="() => _model.Password"/>
+        </div>
+      </div>
+
+      <div class="auth-page__item" style="display: flex; justify-content: space-between;">
+        <label class="checkbox" for="rememberMe">
+          <input type="checkbox" id="rememberMe" class="checkbox__real" @bind="_model.RememberMe"/>
+          <span class="checkbox__custom"></span>
+          Запам'ятати мене
+        </label>
+
+        <NavLink href="@($"/reset-password/send-email?email={_model.Email}")">Забув пароль</NavLink>
+      </div>
+
+      <button type="submit" class="btn btn_form-submit" disabled="@_isLoading">
+        @if (_isLoading)
+        {
+          <p>Зачекайте...</p>
+        }
+        else
+        {
+          <p>Увійти</p>
+        }
+      </button>
+    </AuthForm>
+  </div>
+
+  @if (_error != null)
+  {
+    <div class="auth-page__item">
+      <p class="auth-page__field-error">@_error</p>
+    </div>
+  }
+
+  <div class="auth-page__item">
+    <NavLink href="auth/reg">Реєстрація</NavLink>
+  </div>
+  
+</article>

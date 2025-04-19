@@ -1,0 +1,13 @@
+﻿<img class="avatar"
+     src="@(string.IsNullOrEmpty(Url) ? "avatar.svg" : $"https://localhost:7258/{Url}")"
+     width="@Width"
+     height="@Height"
+     alt="avatar"/>
+
+@code {
+
+  [Parameter] public string? Url { get; set; }
+  [Parameter] public int Width { get; set; }
+  [Parameter] public int Height { get; set; }
+
+}

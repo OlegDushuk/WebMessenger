@@ -10,7 +10,12 @@ public class UserRepository(WebMessengerDbContext dbContext) : IUserRepository
   {
     return await dbContext.Users.AnyAsync(u => u.Email == email);
   }
-  
+
+  public async Task<bool> ExistsByUserNameAsync(string userName)
+  {
+    return await dbContext.Users.AnyAsync(u => u.UserName == userName);
+  }
+
   public async Task<User?> GetByIdAsync(Guid id)
   {
     return await dbContext.Users.FindAsync(id);
