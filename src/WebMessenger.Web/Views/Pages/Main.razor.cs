@@ -1,47 +1,42 @@
 ﻿using System.Net.Http.Json;
 using Microsoft.AspNetCore.Components;
-using WebMessenger.Shared.Models;
+using WebMessenger.Shared.DTOs.Responses;
 using WebMessenger.Web.Models;
 using WebMessenger.Web.Services.Interfaces;
 using WebMessenger.Web.Utils;
-using WebMessenger.Web.Views.Shared;
+using WebMessenger.Web.Views.Shared.Modal;
 
 namespace WebMessenger.Web.Views.Pages;
 
 public partial class Main
 {
-  [Inject] private IAuthApiSource AuthApiSource { get; set; }
-  [Inject] private IAccountApiSource AccountApiSource { get; set; }
-  [Inject] private NavigationManager NavigationManager { get; set; }
+  [Inject] private IAuthApi AuthApi { get; set; } = null!;
+  [Inject] private IAccountApi AccountApi { get; set; } = null!;
+  [Inject] private NavigationManager NavigationManager { get; set; } = null!;
 
-  private readonly Modal.ModalController _profileModalController = new();
+  private ModalView _modalView = null!;
+  
+  private ModalTemplate _profile = null!;
+  private ModalTemplate _createChatForm = null!;
 
   protected override async Task OnInitializedAsync()
   {
     if (!AuthState.IsAuthenticated)
-    {
       await AuthenticateUserAsync();
-    }
     else
-    {
-      if (UserState.User == null)
-      {
-        await FetchUserAsync();
-      }
-    }
+      await FetchUserAsync();
   }
   
   private async Task AuthenticateUserAsync()
   {
-    await HttpHelper.FetchAsync(async () => await AuthApiSource.RefreshTokenAsync(),
+    await HttpHelper.FetchAsync(async () => await AuthApi.RefreshTokenAsync(),
       onSuccess: async response =>
       {
-        var authResult = await response.Content.ReadFromJsonAsync<AuthResult>();
-        if (authResult == null)
+        var authResult = await response.Content.ReadAsStringAsync();
+        if (string.IsNullOrEmpty(authResult))
           throw new NullReferenceException(nameof(authResult));
 
-        AuthState.Authenticate(authResult.Token);
-        
+        AuthState.Authenticate(authResult);
         await FetchUserAsync();
       },
       onFailure: async response =>
@@ -57,22 +52,14 @@ public partial class Main
   
   private async Task FetchUserAsync()
   {
-    await HttpHelper.FetchAsync(async () => await AccountApiSource.LoadUserAsync(),
+    await HttpHelper.FetchAsync(async () => await AccountApi.LoadUserAsync(),
       onSuccess: async response =>
       {
-        var userResult = await response.Content.ReadFromJsonAsync<UserResult>();
+        var userResult = await response.Content.ReadFromJsonAsync<UserDto>();
         if (userResult == null)
           throw new NullReferenceException(nameof(userResult));
 
-        UserState.User = new User
-        {
-          Name = userResult.Name,
-          UserName = userResult.UserName,
-          Email = userResult.Email,
-          AvatarUrl = userResult.Avatar,
-          Bio = userResult.Bio,
-        };
-        
+        UserState.User = new UserModel(userResult);
         StateHasChanged();
       },
       onFailure: async response =>
@@ -80,11 +67,9 @@ public partial class Main
         var error = await response.Content.ReadAsStringAsync();
         if (error == null)
           throw new NullReferenceException(nameof(error));
+      },
+      onException: ex =>
+      {
       });
-  }
-  
-  private void OpenProfile()
-  {
-    _profileModalController.IsShow = true;
   }
 }

@@ -1,0 +1,38 @@
+﻿<h4 class="form__label">
+  Видалення
+</h4>
+
+<div class="form__item">
+  <button class="btn" @onclick="DeleteAccount">
+    Видалити обліковий запис
+  </button>
+</div>
+
+@code {
+  [Inject] private IAccountApi AccountApi { get; set; } = null!;
+  [Inject] private NavigationManager NavManager { get; set; } = null!;
+  [Inject] private IJSRuntime Js { get; set; } = null!;
+  
+  private async Task DeleteAccount()
+  {
+    var confirmed = await Js.InvokeAsync<bool>("confirmDelete", "Ви впевнені, що хочете видалити акаунт?");
+    if (confirmed)
+    {
+      await HttpHelper.FetchAsync(async () => await AccountApi.DeleteUserAsync(),
+        onSuccess: _ =>
+        {
+          NavManager.NavigateTo("/auth/login");
+          
+          return Task.CompletedTask;
+        },
+        onFailure: async response =>
+        {
+          
+        },
+        onException: exception =>
+        {
+        
+        });
+    }
+  }
+}

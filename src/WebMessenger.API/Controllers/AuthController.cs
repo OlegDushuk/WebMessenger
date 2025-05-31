@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebMessenger.API.Extensions;
-using WebMessenger.Application.DTOs.Requests;
 using WebMessenger.Application.UseCases.Interfaces;
-using WebMessenger.Shared.Models;
+using WebMessenger.Shared.DTOs.Requests;
 
 namespace WebMessenger.API.Controllers;
 
@@ -12,28 +11,20 @@ namespace WebMessenger.API.Controllers;
 public class AuthController(IAuthService authService) : ControllerBase
 {
   [HttpPost("reg")]
-  public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+  public async Task<IActionResult> Register([FromBody] RegisterDto request)
   {
-    var dto = new RegisterDto
-    {
-      Email = request.Email,
-      Password = request.Password,
-      UserName = request.UserName,
-      Name = request.Name
-    };
+    var result = await authService.RegisterAsync(request);
 
-    var result = await authService.RegisterAsync(dto);
+    if (!result.IsSuccess)
+      return this.ProcessError(result.Error);
 
-    if (result.IsSuccess)
-      return Ok();
-    
-    return this.ProcessError(result.Error);
+    return Ok();
   }
 
   [HttpPost("verify")]
   public async Task<IActionResult> VerifyEmail([FromQuery] string token)
   {
-    var result = await authService.VerifyEmailAsync(token);
+    var result = await authService.ConfirmEmailAsync(token);
     
     if (result.IsSuccess)
       return Ok();
@@ -44,7 +35,7 @@ public class AuthController(IAuthService authService) : ControllerBase
   [HttpPost("resend-verify")]
   public async Task<IActionResult> ResendVerify([FromQuery] string email)
   {
-    var result = await authService.ResendVerifyAsync(email);
+    var result = await authService.ResendConfirmationAsync(email);
     
     if (result.IsSuccess)
       return Ok();
@@ -53,14 +44,9 @@ public class AuthController(IAuthService authService) : ControllerBase
   }
   
   [HttpPost("login")]
-  public async Task<IActionResult> Login([FromBody]LoginRequest request)
+  public async Task<IActionResult> Login([FromBody]LoginDto request)
   {
-    var result = await authService.LoginAsync(new LoginDto
-    {
-      Email = request.Email,
-      Password = request.Password,
-      RememberMe = request.RememberMe
-    });
+    var result = await authService.LoginAsync(request);
 
     if (!result.IsSuccess)
       return this.ProcessError(result.Error);
@@ -71,10 +57,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     if (result.Data.RefreshToken != null)
       Response.Cookies.Append("RefreshToken", result.Data.RefreshToken);
       
-    return Ok(new AuthResult
-    {
-      Token = result.Data.AccessToken,
-    });
+    return Ok(result.Data);
   }
   
   [HttpGet("refresh-token")]
@@ -84,19 +67,15 @@ public class AuthController(IAuthService authService) : ControllerBase
     if (string.IsNullOrEmpty(token))
       return Unauthorized();
     
-    var result = await authService.RefreshTokenAsync(token);
+    var result = await authService.RefreshAuthAsync(token);
+    
+    if (!result.IsSuccess)
+      return this.ProcessError(result.Error);
+    
     if (result.Data == null)
       throw new NullReferenceException(nameof(result.Data));
     
-    if (result.IsSuccess)
-    {
-      return Ok(new AuthResult
-      {
-        Token = result.Data,
-      });
-    }
-    
-    return this.ProcessError(result.Error);
+    return Ok(result.Data);
   }
   
   [Authorize]
@@ -107,7 +86,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     if (string.IsNullOrEmpty(token))
       return Unauthorized();
     
-    var result = await authService.RevokeTokenAsync(token);
+    var result = await authService.RevokeAuthAsync(token);
     Response.Cookies.Delete("RefreshToken");
     
     if (!result.IsSuccess)
@@ -128,7 +107,7 @@ public class AuthController(IAuthService authService) : ControllerBase
   }
   
   [HttpPost("reset-password")]
-  public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+  public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto request)
   {
     var result = await authService.ResetPasswordAsync(new ResetPasswordDto
     {

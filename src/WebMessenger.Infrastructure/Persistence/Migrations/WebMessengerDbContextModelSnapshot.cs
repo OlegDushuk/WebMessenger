@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebMessenger.Infrastructure.Persistence;
 
@@ -16,129 +15,179 @@ namespace WebMessenger.Infrastructure.Persistence.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.14")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.14");
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("WebMessenger.Core.Entities.EmailVerificationToken", b =>
+            modelBuilder.Entity("WebMessenger.Core.Entities.Chat", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
 
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                    b.Property<int>("NumberOfMessages")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Token")
-                        .IsUnique();
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("EmailVerificationTokens");
+                    b.ToTable("Chats");
                 });
 
-            modelBuilder.Entity("WebMessenger.Core.Entities.RefreshToken", b =>
+            modelBuilder.Entity("WebMessenger.Core.Entities.ChatMember", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
+                    b.Property<Guid>("ChatId")
+                        .HasColumnType("TEXT");
 
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                    b.Property<bool>("IsMuted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Token")
-                        .IsUnique();
+                    b.HasIndex("ChatId");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.HasIndex("UserId", "ChatId")
+                        .IsUnique();
+
+                    b.ToTable("ChatMembers");
                 });
 
-            modelBuilder.Entity("WebMessenger.Core.Entities.ResetPasswordToken", b =>
+            modelBuilder.Entity("WebMessenger.Core.Entities.ChatMessage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
+                    b.Property<Guid>("ChatId")
+                        .HasColumnType("TEXT");
 
-                    b.Property<string>("Token")
+                    b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<bool>("IsEdited")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("NumberOfLikes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("SendAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SenderId")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Token")
-                        .IsUnique();
+                    b.HasIndex("ChatId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("MemberId");
 
-                    b.ToTable("ResetPasswordTokens");
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("ChatsMessages");
+                });
+
+            modelBuilder.Entity("WebMessenger.Core.Entities.GroupDetails", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Avatar")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Bio")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name");
+
+                    b.ToTable("GroupDetails");
+                });
+
+            modelBuilder.Entity("WebMessenger.Core.Entities.UnreadMessage", b =>
+                {
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("MessageId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("MemberId", "MessageId");
+
+                    b.HasIndex("MessageId");
+
+                    b.ToTable("UnreadMessages");
                 });
 
             modelBuilder.Entity("WebMessenger.Core.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Avatar")
                         .HasMaxLength(127)
-                        .HasColumnType("nvarchar(127)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Bio")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(127)
-                        .HasColumnType("nvarchar(127)");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .HasMaxLength(127)
-                        .HasColumnType("nvarchar(127)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(63)
-                        .HasColumnType("nvarchar(63)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -151,7 +200,103 @@ namespace WebMessenger.Infrastructure.Persistence.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("WebMessenger.Core.Entities.EmailVerificationToken", b =>
+            modelBuilder.Entity("WebMessenger.Core.Entities.UserToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserTokens");
+                });
+
+            modelBuilder.Entity("WebMessenger.Core.Entities.ChatMember", b =>
+                {
+                    b.HasOne("WebMessenger.Core.Entities.Chat", "Chat")
+                        .WithMany()
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebMessenger.Core.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
+
+                    b.Navigation("Chat");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WebMessenger.Core.Entities.ChatMessage", b =>
+                {
+                    b.HasOne("WebMessenger.Core.Entities.Chat", null)
+                        .WithMany()
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
+
+                    b.HasOne("WebMessenger.Core.Entities.ChatMember", null)
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
+
+                    b.HasOne("WebMessenger.Core.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WebMessenger.Core.Entities.GroupDetails", b =>
+                {
+                    b.HasOne("WebMessenger.Core.Entities.Chat", "Chat")
+                        .WithOne("GroupDetails")
+                        .HasForeignKey("WebMessenger.Core.Entities.GroupDetails", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chat");
+                });
+
+            modelBuilder.Entity("WebMessenger.Core.Entities.UnreadMessage", b =>
+                {
+                    b.HasOne("WebMessenger.Core.Entities.ChatMember", null)
+                        .WithMany("UnreadMessages")
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebMessenger.Core.Entities.ChatMessage", null)
+                        .WithMany()
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WebMessenger.Core.Entities.UserToken", b =>
                 {
                     b.HasOne("WebMessenger.Core.Entities.User", null)
                         .WithMany()
@@ -160,22 +305,14 @@ namespace WebMessenger.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("WebMessenger.Core.Entities.RefreshToken", b =>
+            modelBuilder.Entity("WebMessenger.Core.Entities.Chat", b =>
                 {
-                    b.HasOne("WebMessenger.Core.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("GroupDetails");
                 });
 
-            modelBuilder.Entity("WebMessenger.Core.Entities.ResetPasswordToken", b =>
+            modelBuilder.Entity("WebMessenger.Core.Entities.ChatMember", b =>
                 {
-                    b.HasOne("WebMessenger.Core.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("UnreadMessages");
                 });
 #pragma warning restore 612, 618
         }

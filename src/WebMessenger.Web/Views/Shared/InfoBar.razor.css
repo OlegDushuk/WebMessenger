@@ -1,0 +1,11 @@
+﻿.info-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.info-bar__item {
+  margin-bottom: 20px;
+}
+.info-bar__item:last-child {
+  margin-bottom: 0;
+}

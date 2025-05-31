@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
-using Microsoft.AspNetCore.Identity.Data;
 using WebMessenger.Application.Common;
-using WebMessenger.Application.DTOs.Requests;
+using WebMessenger.Shared.DTOs.Requests;
 
 namespace WebMessenger.Application.Validators;
 

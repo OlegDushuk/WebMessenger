@@ -1,0 +1,40 @@
+﻿@typeparam TEnum where TEnum : struct, Enum
+
+<div class="radio-list">
+  @foreach (var value in Enum.GetValues(typeof(TEnum)).Cast<TEnum>())
+  {
+    <div class="radio-list__item">
+      <label class="checkbox checkbox_radio">
+        <input class="checkbox__real"
+               type="radio"
+               name="@GroupName"
+               value="@value"
+               checked="@value.Equals(Value)"
+               @onchange="@(() => ChangeValue(value))" />
+        <span class="checkbox__custom"></span>
+        @GetDisplay(value)
+      </label>
+    </div>
+  }
+</div>
+
+@code {
+  [Parameter] public string GroupName { get; set; } = Guid.NewGuid().ToString();
+  [Parameter] public TEnum Value { get; set; }
+  [Parameter] public EventCallback<TEnum> ValueChanged { get; set; }
+  [Parameter] public Dictionary<TEnum, string> DisplayNames { get; set; } = [];
+
+  private async Task ChangeValue(TEnum selected)
+  {
+    Value = selected;
+    await ValueChanged.InvokeAsync(selected);
+  }
+  
+  private string GetDisplay(TEnum value)
+  {
+    if (DisplayNames.Count > 0 && DisplayNames.TryGetValue(value, out var label))
+      return label;
+    
+    return value.ToString();
+  }
+}

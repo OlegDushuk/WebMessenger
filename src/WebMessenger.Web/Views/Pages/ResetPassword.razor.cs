@@ -1,18 +1,18 @@
 ﻿using System.Net;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using WebMessenger.Shared.Models;
+using WebMessenger.Shared.DTOs.Requests;
 using WebMessenger.Web.Models;
 using WebMessenger.Web.Services.Interfaces;
 using WebMessenger.Web.Utils;
-using WebMessenger.Web.Views.Shared;
+using WebMessenger.Web.Views.Shared.Auth;
 
 namespace WebMessenger.Web.Views.Pages;
 
 public partial class ResetPassword : ComponentBase
 {
-  [Inject] private IAuthApiSource AuthApiSource { get; set; }
-  
+  [Inject] private IAuthApi AuthApi { get; set; } = null!;
+
   [Parameter] public string Token { get; set; } = string.Empty;
   
   private readonly ResetPasswordModel _model = new();
@@ -25,7 +25,7 @@ public partial class ResetPassword : ComponentBase
     _isLoading = true;
     _isSuccess = false;
 
-    await HttpHelper.FetchAsync(async () => await AuthApiSource.ResetPasswordAsync(new ResetPasswordRequest
+    await HttpHelper.FetchAsync(async () => await AuthApi.ResetPasswordAsync(new ResetPasswordDto
       {
         Token = Token,
         NewPassword = _model.NewPassword ?? "",

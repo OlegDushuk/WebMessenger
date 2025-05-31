@@ -2,9 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebMessenger.API.Extensions;
-using WebMessenger.Application.DTOs.Requests;
 using WebMessenger.Application.UseCases.Interfaces;
-using WebMessenger.Shared.Models;
+using WebMessenger.Shared.DTOs.Requests;
 
 namespace WebMessenger.API.Controllers;
 
@@ -25,18 +24,11 @@ public class AccountController(IAccountService accountService) : ControllerBase
     if (result.Data == null)
       throw new NullReferenceException(nameof(result.Data));
     
-    return Ok(new UserResult
-    {
-      Name = result.Data.Name,
-      UserName = result.Data.UserName,
-      Email = result.Data.Email,
-      Avatar = result.Data.Avatar,
-      Bio = result.Data.Bio,
-    });
+    return Ok(result.Data);
   }
 
   [HttpPut("update-data")]
-  public async Task<IActionResult> UpdateAccountData(UpdateAccountDataRequest request)
+  public async Task<IActionResult> UpdateAccountData(UpdateAccountDataDto request)
   {
     var email = User.FindFirst(ClaimTypes.Email)?.Value ?? "";
     
@@ -54,7 +46,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
   }
 
   [HttpPut("change-password")]
-  public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
+  public async Task<IActionResult> ChangePassword(ChangePasswordDto request)
   {
     var email = User.FindFirst(ClaimTypes.Email)?.Value ?? "";
     

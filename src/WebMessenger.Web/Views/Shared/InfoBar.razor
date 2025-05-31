@@ -1,0 +1,25 @@
+﻿<article class="info-bar">
+  <div class="info-bar__item">
+    <Avatar Url="@AvatarUrl" Width="120" Height="120"/>
+  </div>
+  
+  @if (Name != null)
+  {
+    <div class="info-bar__item">
+      <p class="user-full-name">@Name</p>
+    </div>
+  }
+
+  @if (Bio != null)
+  {
+    <div class="info-bar__item">
+      <p>@Bio</p>
+    </div>
+  }
+</article>
+
+@code {
+  [Parameter] public string? AvatarUrl { get; set; }
+  [Parameter] public string? Name { get; set; }
+  [Parameter] public string? Bio { get; set; }
+}

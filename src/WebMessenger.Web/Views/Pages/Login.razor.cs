@@ -1,20 +1,21 @@
 ﻿using System.Net.Http.Json;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using WebMessenger.Shared.Models;
+using WebMessenger.Shared.DTOs.Requests;
+using WebMessenger.Shared.DTOs.Responses;
 using WebMessenger.Web.Models;
 using WebMessenger.Web.Services.Interfaces;
 using WebMessenger.Web.Utils;
-using WebMessenger.Web.Views.Shared;
+using WebMessenger.Web.Views.Shared.Auth;
 
 namespace WebMessenger.Web.Views.Pages;
 
 public partial class Login : ComponentBase
 {
-  [Inject] private IAuthApiSource AuthApiSource { get; set; }
-  [Inject] private IAuthState AuthState { get; set; }
-  [Inject] private NavigationManager NavManager { get; set; }
-  
+  [Inject] private IAuthApi AuthApi { get; set; } = null!;
+  [Inject] private IAuthState AuthState { get; set; } = null!;
+  [Inject] private NavigationManager NavManager { get; set; } = null!;
+
   private readonly LoginModel _model = new();
   private bool _isLoading;
   private string? _error;
@@ -24,7 +25,7 @@ public partial class Login : ComponentBase
     _isLoading = true;
     _error = null;
 
-    await HttpHelper.FetchAsync(() => AuthApiSource.LoginAsync(new LoginRequest
+    await HttpHelper.FetchAsync(() => AuthApi.LoginAsync(new LoginDto
       {
         Email = _model.Email ?? string.Empty,
         Password = _model.Password ?? string.Empty,
@@ -32,11 +33,11 @@ public partial class Login : ComponentBase
       }),
       onSuccess: async response =>
       {
-        var authResult = await response.Content.ReadFromJsonAsync<AuthResult>();
+        var authResult = await response.Content.ReadFromJsonAsync<AuthDto>();
         if (authResult == null)
           throw new NullReferenceException(nameof(authResult));
         
-        AuthState.Authenticate(authResult.Token);
+        AuthState.Authenticate(authResult.AccessToken);
         NavManager.NavigateTo("/");
       },
       onFailure: async response =>

@@ -4,5 +4,5 @@ namespace WebMessenger.Web.Services.Interfaces;
 
 public interface IUserState
 {
-  User? User { get; set; }
+  UserModel? User { get; set; }
 }

@@ -1,11 +1,12 @@
-﻿using WebMessenger.Application.Common.Enums;
+﻿using AutoMapper;
+using WebMessenger.Application.Common.Enums;
+using WebMessenger.Application.Common.Helpers;
 using WebMessenger.Application.Common.Models;
-using WebMessenger.Application.DTOs.Requests;
-using WebMessenger.Application.DTOs.Responses;
 using WebMessenger.Application.UseCases.Interfaces;
 using WebMessenger.Application.Validators;
 using WebMessenger.Core.Interfaces.Repositories;
-using WebMessenger.Core.Interfaces.Services;
+using WebMessenger.Shared.DTOs.Requests;
+using WebMessenger.Shared.DTOs.Responses;
 
 namespace WebMessenger.Application.UseCases.Implementations;
 
@@ -13,7 +14,7 @@ public class AccountService(
   EmailValidator emailValidator,
   PasswordValidator passwordValidator,
   IUserRepository userRepository,
-  IPasswordService passwordService
+  IMapper mapper
 ) : IAccountService
 {
   public async Task<Result<UserDto>> GetUserAsync(string email)
@@ -32,14 +33,7 @@ public class AccountService(
         "USER_BY_THIS_EMAIL_NOT_FOUND"
       );
     
-    var userDto = new UserDto
-    {
-      UserName = user.UserName!,
-      Email = user.Email!,
-      Name = user.Name!,
-      Avatar = user.Avatar!,
-      Bio = user.Bio!,
-    };
+    var userDto = mapper.Map<UserDto>(user);
     
     return Result<UserDto>.Success(userDto);
   }
@@ -76,7 +70,7 @@ public class AccountService(
         "USER_BY_THIS_EMAIL_NOT_FOUND"
       );
 
-    if (!passwordService.VerifyPassword(dto.OldPassword, user.PasswordHash))
+    if (!PasswordHasher.VerifyPassword(dto.OldPassword, user.PasswordHash!))
       return Result.Failure(
         ErrorType.Conflict,
         "PASSWORD_INVALID"
@@ -91,7 +85,7 @@ public class AccountService(
       );
     }
     
-    user.PasswordHash = passwordService.HashPassword(dto.NewPassword);
+    user.PasswordHash = PasswordHasher.HashPassword(dto.NewPassword);
     await userRepository.UpdateAsync(user);
     
     return Result.Success;

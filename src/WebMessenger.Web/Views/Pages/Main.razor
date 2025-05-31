@@ -3,50 +3,76 @@
 @inject IAuthState AuthState
 @inject IUserState UserState
 
+<PageTitle>Web messenger - @UserState.User?.Name</PageTitle>
+
 @if (AuthState.IsAuthenticated)
 {
   <main class="main-page">
-    <ProfileModal ModalController="_profileModalController" />
+    <CascadingValue Value="_modalView" Name="GlobalModal">
+      <ModalView @ref="_modalView" />
+      
+      <ModalTemplate @ref="_profile" Title="Мій профіль">
+        <UserProfileView />
+      </ModalTemplate>
+      
+      <ModalTemplate @ref="_createChatForm" Title="Створити новий чат">
+        <CreateChatForm />
+      </ModalTemplate>
 
-    <aside class="main-page__sidebar sidebar">
-      <ul class="sidebar__inner">
-        <li class="sidebar__item">
-          <article class="profile-bar">
-            <div class="profile-bar__info">
-              @if (@UserState.User != null)
-              {
-                <div class="profile-bar__item">
-                  <Avatar Url="@UserState.User.AvatarUrl" Width="50" Height="50" />
+      <aside class="main-page__sidebar sidebar">
+        <div class="sidebar__inner">
+          <div class="sidebar__top">
+            <div class="sidebar__item">
+              <article class="profile-bar">
+                <div class="profile-bar__info">
+                  @if (@UserState.User != null)
+                  {
+                    <div class="profile-bar__item">
+                      <Avatar Url="@UserState.User.AvatarUrl" Width="50" Height="50"/>
+                    </div>
+
+                    <div class="profile-bar__item">
+                      <p class="profile-bar__full-name user-full-name">@UserState.User.Name</p>
+                      <p class="profile-bar__username">@@@UserState.User.UserName</p>
+                    </div>
+                  }
+                  else
+                  {
+                    <p>...</p>
+                  }
                 </div>
 
                 <div class="profile-bar__item">
-                  <p class="profile-bar__full-name user-full-name">@UserState.User.Name</p>
-                  <p class="profile-bar__username">@@@UserState.User.UserName</p>
+                  <button class="btn btn_opacity btn_icon" @onclick="() => { _profile.Open(); }">
+                    <MenuBurgerIcon/>
+                  </button>
                 </div>
-              }
-              else
-              {
-                <p>...</p>
-              }
+              </article>
             </div>
 
-            <div class="profile-bar__item">
-              <button class="btn btn_opacity" @onclick="@OpenProfile">
-                <MenuBurgerIcon/>
-              </button>
+            <div class="sidebar__item">
+              <div class="sidebar__tools">
+                <div class="sidebar__search-wrapper">
+                  <input class="field" type="text" placeholder="Пошук..."/>
+                </div>
+
+                <div class="sidebar__create-chat-wrapper">
+                  <button class="btn btn_opacity btn_icon" type="button" @onclick="() => { _createChatForm.Open(); }">
+                    <PlusIcon/>
+                  </button>
+                </div>
+              </div>
             </div>
-          </article>
-        </li>
+          </div>
 
+          <ChatList />
+        </div>
+      </aside>
 
-      </ul>
-    </aside>
-
-    <div>
-      <article>
-
-      </article>
-    </div>
+      <div class="main-page__content">
+        <ChatView />
+      </div>
+    </CascadingValue>
   </main>
 }
 else

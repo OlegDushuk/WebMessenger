@@ -11,6 +11,6 @@ public class ResetPasswordModel
   
   [Required(ErrorMessage = "Це поле обов'язкове")]
   [DataType(DataType.Password)]
-  [Compare("Password", ErrorMessage = "Паролі не збігаються")]
+  [Compare("NewPassword", ErrorMessage = "Паролі не збігаються")]
   public string? ConfirmPassword { get; set; }
 }

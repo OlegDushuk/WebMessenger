@@ -26,6 +26,11 @@ public class UserRepository(WebMessengerDbContext dbContext) : IUserRepository
     return await dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
   }
 
+  public async Task<User?> GetByUserNameAsync(string userName)
+  {
+    return await dbContext.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+  }
+
   public async Task<Guid> CreateAsync(User user)
   {
     user.Id = Guid.NewGuid();

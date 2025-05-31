@@ -1,0 +1,71 @@
+﻿@page "/TestSignalR"
+
+@using Microsoft.AspNetCore.SignalR.Client;
+
+<h3>Чат</h3>
+
+<input class="field" @bind="_userName" placeholder="Ваше ім’я" />
+<input class="field" @bind="_messageText" placeholder="Повідомлення" />
+<button class="btn" @onclick="Send">Надіслати</button>
+
+<ul>
+  @foreach (var msg in _messages)
+  {
+    <li><b>@msg.User:</b> @msg.Text</li>
+  }
+</ul>
+
+@code {
+  private string _userName = "Олег";
+  private string _messageText = "";
+  private readonly List<(string User, string Text)> _messages = [];
+  
+  private HubConnection? _hubConnection;
+  public event Action<string, string>? OnMessageReceived;
+  
+
+  protected override async Task OnInitializedAsync()
+  {
+    OnMessageReceived += (user, message) =>
+    {
+      _messages.Add((user, message));
+      InvokeAsync(StateHasChanged);
+    };
+
+    if (_hubConnection != null) return;
+
+    _hubConnection = new HubConnectionBuilder()
+      .WithUrl("https://localhost:7276/chat")
+      .WithAutomaticReconnect()
+      .Build();
+
+    _hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+    {
+      OnMessageReceived?.Invoke(user, message);
+    });
+
+    await _hubConnection.StartAsync();
+  }
+
+  private async Task Send()
+  {
+    if (!string.IsNullOrWhiteSpace(_messageText))
+    {
+      if (_hubConnection?.State == HubConnectionState.Connected)
+      {
+        await _hubConnection.SendAsync("AddMessageToCurrentChat", _userName, _messageText);
+      }
+      _messageText = "";
+    }
+  }
+
+  public async ValueTask DisposeAsync()
+  {
+    if (_hubConnection != null)
+    {
+      await _hubConnection.StopAsync();
+      await _hubConnection.DisposeAsync();
+      _hubConnection = null;
+    }
+  }
+}

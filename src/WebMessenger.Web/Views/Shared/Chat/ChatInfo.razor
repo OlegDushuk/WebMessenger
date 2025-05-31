@@ -1,0 +1,16 @@
+﻿@inject IChatState ChatState
+
+<section class="profile-modal__section">
+  <InfoBar
+    AvatarUrl="@ChatState.CurrentChat?.AvatarUrl"
+    Name="@ChatState.CurrentChat?.Name"
+    Bio="@ChatState.CurrentChat?.Bio"/>
+</section>
+
+<section class="profile-modal__section">
+  
+</section>
+
+<section class="profile-modal__section">
+  
+</section>

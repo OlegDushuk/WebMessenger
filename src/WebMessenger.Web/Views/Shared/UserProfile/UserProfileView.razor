@@ -1,0 +1,56 @@
+﻿@inject IUserState UserState
+
+@if (UserState.User != null)
+{
+  <section class="profile-modal__section">
+    <InfoBar
+      AvatarUrl="@UserState.User.AvatarUrl"
+      Name="@UserState.User.Name"
+      Bio="@UserState.User.Bio"/>
+  </section>
+
+  <section class="profile-modal__section">
+    <div class="profile-modal__item">
+      <p class="profile-modal__user-field color-accent">@UserState.User.Email</p>
+      <p class="small-text">Ел. пошта</p>
+    </div>
+    
+    <div class="profile-modal__item">
+      <p class="profile-modal__user-field color-accent">@@@UserState.User.UserName</p>
+      <p class="small-text">Ім'я користувача</p>
+    </div>
+  </section>
+  
+  <section class="profile-modal__section">
+    <div class="profile-modal__item profile-modal__manage-panel">
+      <button class="btn btn_opacity" @onclick="SwitchSettings">
+        <SettingsIcon/>
+        Налаштування
+        <VerticalArrowIcon ToDown="@(!_isShowSettings)"/>
+      </button>
+
+      <button class="btn btn_opacity" @onclick="HandleLogout">
+        <LogoutIcon/>
+        Вийти
+      </button>
+    </div>
+    
+    <div class="profile-modal__item">
+      <article class="settings @(_isShowSettings ? "settings_show" : "")">
+        <div class="settings__container">
+          <section class="settings__section">
+            <UpdateAccountForm />
+          </section>
+
+          <section class="settings__section">
+            <ChangePasswordForm />
+          </section>
+
+          <section class="settings__section">
+            <DeleteAccountPanel />
+          </section>
+        </div>
+      </article>
+    </div>
+  </section>
+}

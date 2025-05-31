@@ -1,0 +1,27 @@
+﻿<article class="message-view @(IsOwn ? "own theme-ignore" : "")">
+  <div class="message-view__container">
+    <div class="message-view__sender-avatar">
+      <Avatar Width="50" Height="50" />
+    </div>
+
+    <div class="message-view__body">
+      <p class="message-view__sender-name">
+        @Message.Sender.Name
+      </p>
+
+      <p class="message-view__content">
+        @Message.Content
+      </p>
+
+      <div class="message-view__details">
+        <div class="message-view__details-item">
+          @Message.FormatSendAt()
+        </div>
+        @if (IsOwn)
+        {
+          <div class="message-view__details-item">Ok</div>
+        }
+      </div>
+    </div>
+  </div>
+</article>

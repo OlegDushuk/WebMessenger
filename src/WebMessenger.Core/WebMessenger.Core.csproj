@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\WebMessenger.Shared\WebMessenger.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

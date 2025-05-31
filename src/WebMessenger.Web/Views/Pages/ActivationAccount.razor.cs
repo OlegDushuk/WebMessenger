@@ -2,7 +2,7 @@
 using WebMessenger.Web.Models;
 using WebMessenger.Web.Services.Interfaces;
 using WebMessenger.Web.Utils;
-using WebMessenger.Web.Views.Shared;
+using WebMessenger.Web.Views.Shared.Auth;
 
 namespace WebMessenger.Web.Views.Pages;
 
@@ -10,7 +10,7 @@ public partial class ActivationAccount : ComponentBase
 {
   [SupplyParameterFromQuery] public string? Email { get; set; }
   
-  [Inject] private IAuthApiSource AuthApiSource { get; set; }
+  [Inject] private IAuthApi AuthApi { get; set; } = null!;
 
   private readonly EmailModel _model = new();
   private bool _isLoading;
@@ -23,7 +23,7 @@ public partial class ActivationAccount : ComponentBase
     _isSuccess = false;
     _error = null;
     
-    await HttpHelper.FetchAsync(async () => await AuthApiSource.SendVerificationLinkAsync(_model.Email ?? ""),
+    await HttpHelper.FetchAsync(async () => await AuthApi.SendVerificationLinkAsync(_model.Email ?? ""),
       onSuccess: _ =>
       {
         _isSuccess = true;

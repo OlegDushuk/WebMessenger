@@ -1,0 +1,48 @@
+﻿@inject IChatState ChatState
+
+<button class="chat-link @(ChatState.CurrentChat == Model ? "chat-link_selected" : "")"
+        disabled="@(ChatState.CurrentChat == Model)" @onclick="OnClick">
+  <div class="chat-link__avatar">
+    <Avatar Url="@Model.AvatarUrl" Width="50" Height="50"/>
+  </div>
+  
+  <div class="chat-link__info">
+    <div class="chat-link__info-top">
+      <p class="chat-link__name">@Model.Name</p>
+      <p class="chat-link__last-msg-time">@Model.LastMessage?.FormatSendAt()</p>
+    </div> 
+    
+    <div class="chat-link__info-bottom">
+      @if (Model.LastMessage != null)
+      {
+        <p class="chat-link__last-msg-sender">@Model.LastMessage.Sender.Name:</p>
+        <p class="chat-link__last-msg-content">@Model.LastMessage.Content</p>
+      }
+      @* <div class="chat-link__new-msg-count">1</div> *@
+    </div>
+  </div>
+</button>
+
+@code {
+  [Parameter] public ChatModel Model { get; set; } = null!;
+  
+  protected override async Task OnParametersSetAsync()
+  {
+    ChatState.OnChatSelected += () =>
+    {
+      InvokeAsync(StateHasChanged);
+    };
+    
+    Model.OnChangeState += () =>
+    {
+      InvokeAsync(StateHasChanged);
+    };
+    
+    await base.OnParametersSetAsync();
+  }
+  
+  private void OnClick()
+  {
+    ChatState.CurrentChat = Model;
+  }
+}

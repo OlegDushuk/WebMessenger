@@ -1,0 +1,15 @@
+﻿<div class="modal @(_isShow ? "modal_active" : "")">
+  <div class="modal__container">
+    <div class="modal__header">
+      <h2>@_title</h2>
+      
+      <button class="btn btn_opacity modal__close-btn" @onclick="Close">
+        <CancelIcon />
+      </button>
+    </div>
+    
+    <div class="modal__content">
+      @_content
+    </div>
+  </div>
+</div>

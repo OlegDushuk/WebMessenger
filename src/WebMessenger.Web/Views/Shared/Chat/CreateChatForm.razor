@@ -1,0 +1,33 @@
+﻿@using WebMessenger.Core.Enums
+<EditForm Model="_model" OnValidSubmit="HandleCreateChat">
+  <DataAnnotationsValidator />
+
+  <div class="form__item">
+    <label class="form__label">Назва чату</label>
+    <InputText class="field"
+               @bind-Value="_model.Name"/>
+    <ValidationMessage class="auth-page__field-error" For="() => _model.Name" />
+  </div>
+
+  <div class="form__item">
+    <label class="form__label">Опис чату</label>
+    <InputTextArea class="text-area"
+                   @bind-Value="_model.Bio"/>
+  </div>
+
+  <div class="form__item">
+    <label class="form__label">Тип чату</label>
+    <InputRadioList
+      TEnum="GroupType"
+      DisplayNames="@(new Dictionary<GroupType, string>
+                    {
+                      { GroupType.Public, "Відкритий" },
+                      { GroupType.Private, "Приватний" },
+                    })"
+      @bind-Value="@_model.Type" />
+  </div>
+
+  <button class="btn" type="submit">
+    Створити
+  </button>
+</EditForm>

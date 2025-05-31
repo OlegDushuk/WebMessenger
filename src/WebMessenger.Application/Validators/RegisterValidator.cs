@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using WebMessenger.Application.Common;
-using WebMessenger.Application.DTOs.Requests;
+using WebMessenger.Shared.DTOs.Requests;
 
 namespace WebMessenger.Application.Validators;
 

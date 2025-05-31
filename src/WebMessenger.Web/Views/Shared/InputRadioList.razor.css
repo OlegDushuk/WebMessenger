@@ -1,0 +1,6 @@
+﻿.radio-list__item {
+  margin-bottom: 10px;
+}
+.radio-list__item:last-child {
+  margin-bottom: 0;
+}

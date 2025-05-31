@@ -1,0 +1,21 @@
+﻿.settings {
+  background-color: var(--bg-card);
+  border-radius: var(--def-border-radius);
+
+  height: 0;
+  overflow-y: auto;
+}
+.settings.settings_show {
+  height: 330px;
+}
+
+.settings__container {
+  padding: 25px;
+}
+
+.settings__section {
+  margin-bottom: 20px;
+}
+.settings__section:last-child {
+  margin-bottom: 0;
+}

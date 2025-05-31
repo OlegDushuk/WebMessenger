@@ -5,5 +5,5 @@ namespace WebMessenger.Web.Services.Implementations;
 
 public class UserState : IUserState
 {
-  public User? User { get; set; }
+  public UserModel? User { get; set; }
 }

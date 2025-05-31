@@ -1,0 +1,54 @@
+﻿@if (Model != null)
+{
+  <article class="chat-view">
+    <ModalTemplate @ref="_chatInfoModal" Title="Про групу">
+      <ChatInfo />
+    </ModalTemplate>
+    
+    <div class="chat-view__header">
+      <div class="chat-view__info">
+        <div class="chat-view__avatar-wrapper">
+          <Avatar Url="@Model.AvatarUrl" Width="50" Height="50"/>
+        </div>
+
+        <div>
+          <h2 class="chat-view__name user-full-name">@Model.Name</h2>
+          <p class="chat-view__members">@Model.NumberOfMembers members</p>
+        </div>
+      </div>
+
+      <button class="btn btn_opacity btn_icon" @onclick="() => { _chatInfoModal.Open(); }">
+        <MenuBurgerIcon/>
+      </button>
+    </div>
+
+    <div id="chatContainer" class="chat-view__history chat-view__container" @onscroll="OnScroll">
+      <div class="chat-view__history-content">
+        @foreach (var message in Model.Messages)
+        {
+          <MessageView Message="message"/>
+        }
+      </div>
+    </div>
+
+    <div class="chat-view__manage">
+      <InputText class="chat-view__input-message"
+                 @bind-Value="Model.CurrentMessage"
+                 placeholder="Написати повідомлення..."/>
+
+      <button class="btn btn_icon" @onclick="SendMessage">
+        <SendIcon/>
+      </button>
+    </div>
+    
+    @* <div class="chat-view__container"> *@
+    @*    *@
+    @* </div> *@
+  </article>
+}
+else
+{
+  <p>Select chat</p>
+}
+
+

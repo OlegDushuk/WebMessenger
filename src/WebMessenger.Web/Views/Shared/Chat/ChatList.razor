@@ -1,0 +1,66 @@
+﻿@inject IChatState ChatState
+@inject IChatApi ChatApi
+@inject IUserState UserState
+@inject IChatNotificationService ChatNotificationService
+
+<ul class="chat-list">
+  @foreach (var chat in ChatState.Chats)
+  {
+    <li class="chat-list__item">
+      <ChatLink Model="@chat"/>
+    </li>
+  }
+</ul>
+
+@code {
+  private Dictionary<Guid, ChatModel> _chatMap = new();
+  
+  protected override async Task OnInitializedAsync()
+  {
+    ChatState.OnChangeChats += () =>
+    {
+      InvokeAsync(StateHasChanged);
+    };
+    
+    await LoadChats();
+    
+    await base.OnInitializedAsync();
+  }
+  
+  private async Task LoadChats()
+  {
+    await HttpHelper.FetchAsync(async () => await ChatApi.GetChatsAsync(),
+      onSuccess: async response =>
+      {
+        var dtos = await response.Content.ReadFromJsonAsync<List<ChatDto>>();
+        if (dtos == null)
+          throw new NullReferenceException(nameof(dtos));
+        
+        var chats = dtos.Select(dto => new ChatModel(dto)).ToList();
+        
+        foreach (var chat in chats)
+        {
+          _chatMap[chat.Id] = chat;
+        }
+        ChatNotificationService.OnReceiveMessage += dto =>
+        {
+          if (_chatMap.TryGetValue(dto.Id, out var chat))
+          {
+            chat.AddNewMessage(dto);
+          }
+        };
+        
+        var chatIds = chats.Select(c => c.Id);
+        
+        await ChatNotificationService.InitConnectionAsync(UserState.User!.Id, chatIds);
+        
+        ChatState.AddChats(chats);
+      },
+      onFailure: async response =>
+      {
+        var error = await response.Content.ReadAsStringAsync();
+        if (error == null)
+          throw new NullReferenceException(nameof(error));
+      });
+  }
+}

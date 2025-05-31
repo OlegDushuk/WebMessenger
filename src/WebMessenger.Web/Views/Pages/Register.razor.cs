@@ -1,19 +1,19 @@
 ﻿using System.Net.Http.Json;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using WebMessenger.Shared.Models;
+using WebMessenger.Shared.DTOs.Requests;
 using WebMessenger.Web.Models;
 using WebMessenger.Web.Services.Interfaces;
 using WebMessenger.Web.Utils;
-using WebMessenger.Web.Views.Shared;
+using WebMessenger.Web.Views.Shared.Auth;
 
 namespace WebMessenger.Web.Views.Pages;
 
 public partial class Register : ComponentBase
 {
-  [Inject] private IAuthApiSource AuthApiSource { get; set; }
-  [Inject] private NavigationManager NavManager { get; set; }
-  
+  [Inject] private IAuthApi AuthApi { get; set; } = null!;
+  [Inject] private NavigationManager NavManager { get; set; } = null!;
+
   private readonly RegisterModel _model = new();
   private bool _isLoading;
   private string? _error;
@@ -23,7 +23,7 @@ public partial class Register : ComponentBase
     _isLoading = true;
     _error = null;
     
-    await HttpHelper.FetchAsync(() => AuthApiSource.RegisterAsync(new RegisterRequest
+    await HttpHelper.FetchAsync(() => AuthApi.RegisterAsync(new RegisterDto
       {
         Name = _model.Name ?? string.Empty,
         UserName = _model.UserName ?? string.Empty,

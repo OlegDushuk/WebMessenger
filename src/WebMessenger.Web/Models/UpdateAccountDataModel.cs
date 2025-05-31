@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace WebMessenger.Web.Models;
+﻿namespace WebMessenger.Web.Models;
 
 public class UpdateAccountDataModel
 {

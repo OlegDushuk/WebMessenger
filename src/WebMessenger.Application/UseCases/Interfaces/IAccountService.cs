@@ -1,6 +1,6 @@
 ﻿using WebMessenger.Application.Common.Models;
-using WebMessenger.Application.DTOs.Requests;
-using WebMessenger.Application.DTOs.Responses;
+using WebMessenger.Shared.DTOs.Requests;
+using WebMessenger.Shared.DTOs.Responses;
 
 namespace WebMessenger.Application.UseCases.Interfaces;
 

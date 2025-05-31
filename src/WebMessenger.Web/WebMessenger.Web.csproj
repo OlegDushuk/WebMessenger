@@ -10,6 +10,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.0.14" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.14" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.14" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.15" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.7.0" />
   </ItemGroup>
@@ -24,15 +25,17 @@
     <_ContentIncludedByDefault Remove="wwwroot\css\app.css" />
     <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css" />
     <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css.map" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\WebMessenger.Shared\WebMessenger.Shared.csproj" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\shared\chat-view.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\shared\message-view.css" />
   </ItemGroup>
 
   <ItemGroup>
     <AdditionalFiles Include="Views\Shared\Icons\CancelIcon.razor" />
     <AdditionalFiles Include="Views\Shared\Icons\MenuBurgerIcon.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WebMessenger.Core\WebMessenger.Core.csproj" />
   </ItemGroup>
 
 </Project>

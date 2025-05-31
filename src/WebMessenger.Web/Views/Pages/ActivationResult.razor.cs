@@ -6,8 +6,8 @@ namespace WebMessenger.Web.Views.Pages;
 
 public partial class ActivationResult : ComponentBase
 {
-  [Inject] private IAuthApiSource AuthApiSource { get; set; }
-  
+  [Inject] private IAuthApi AuthApi { get; set; } = null!;
+
   private bool _isLoading = true;
   private bool _isSuccess;
   
@@ -15,7 +15,7 @@ public partial class ActivationResult : ComponentBase
   
   protected override async Task OnInitializedAsync()
   {
-    await HttpHelper.FetchAsync(async () => await AuthApiSource.VerifyAsync(Token),
+    await HttpHelper.FetchAsync(async () => await AuthApi.VerifyAsync(Token),
       onSuccess: _ =>
       {
         _isSuccess = true;

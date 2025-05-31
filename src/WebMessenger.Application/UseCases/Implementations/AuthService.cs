@@ -1,13 +1,16 @@
 ﻿using WebMessenger.Application.Common;
 using WebMessenger.Application.Common.Enums;
+using WebMessenger.Application.Common.Helpers;
+using WebMessenger.Application.Common.Helpers.Interfaces;
 using WebMessenger.Application.Common.Models;
-using WebMessenger.Application.DTOs.Requests;
-using WebMessenger.Application.DTOs.Responses;
 using WebMessenger.Application.UseCases.Interfaces;
 using WebMessenger.Application.Validators;
 using WebMessenger.Core.Entities;
+using WebMessenger.Core.Enums;
 using WebMessenger.Core.Interfaces.Repositories;
 using WebMessenger.Core.Interfaces.Services;
+using WebMessenger.Shared.DTOs.Requests;
+using WebMessenger.Shared.DTOs.Responses;
 
 namespace WebMessenger.Application.UseCases.Implementations;
 
@@ -16,13 +19,10 @@ public class AuthService(
   EmailValidator emailValidator,
   PasswordValidator passwordValidator,
   LoginValidator loginValidator,
+  IJwtTokenGenerator jwtTokenGenerator,
   IUserRepository userRepository,
-  IEmailVerificationTokenRepository verTokenRepository,
-  IRefreshTokenRepository refTokenRepository,
-  IResetPasswordTokenRepository resetPasswordTokenRepository,
-  IEmailService emailService,
-  IAuthTokenService authTokenService,
-  IPasswordService passwordService
+  IUserTokenRepository tokenRepository,
+  IEmailService emailService
   ) : IAuthService
 {
   public async Task<Result> RegisterAsync(RegisterDto dto)
@@ -63,26 +63,27 @@ public class AuthService(
     {
       UserName = dto.UserName,
       Email = dto.Email,
-      PasswordHash = passwordService.HashPassword(dto.Password),
+      PasswordHash = PasswordHasher.HashPassword(dto.Password),
       Name = dto.Name,
-      IsActive = false,
+      IsActive = true,
     };
     var id = await userRepository.CreateAsync(user);
     
-    var verificationToken = new EmailVerificationToken
-    {
-      UserId = id,
-      Token = Guid.NewGuid().ToString("N"),
-      ExpiresAt = DateTime.UtcNow.AddDays(2),
-    };
-    await verTokenRepository.CreateAsync(verificationToken);
-    
-    await emailService.SendEmailVerificationAsync(user.Email, verificationToken.Token);
+    // var verificationToken = new UserToken
+    // {
+    //   UserId = id,
+    //   Token = Guid.NewGuid().ToString("N"),
+    //   ExpiresAt = DateTime.UtcNow.AddDays(2),
+    //   Type = UserTokenType.ConfirmationEmail
+    // };
+    // await tokenRepository.CreateAsync(verificationToken);
+    //
+    // await emailService.SendEmailVerificationAsync(user.Email, verificationToken.Token);
     
     return Result.Success;
   }
   
-  public async Task<Result> VerifyEmailAsync(string token)
+  public async Task<Result> ConfirmEmailAsync(string token)
   {
     if (string.IsNullOrEmpty(token))
       return Result.Failure(
@@ -90,7 +91,7 @@ public class AuthService(
         ErrorMessages.IsRequired
       );
     
-    var verToken = await verTokenRepository.GetByTokenAsync(token);
+    var verToken = await tokenRepository.GetByTokenAsync(token);
     if (verToken == null)
       return Result.Failure(
         ErrorType.NotFound,
@@ -106,7 +107,7 @@ public class AuthService(
     var user = await userRepository.GetByIdAsync(verToken.UserId);
     if (user == null)
     {
-      await verTokenRepository.DeleteAsync(verToken.Id);
+      await tokenRepository.DeleteAsync(verToken.Id);
       
       return Result.Failure(
         ErrorType.NotFound,
@@ -116,12 +117,12 @@ public class AuthService(
     
     user.IsActive = true;
     await userRepository.UpdateAsync(user);
-    await verTokenRepository.DeleteAsync(verToken.Id);
+    await tokenRepository.DeleteAsync(verToken.Id);
 
     return Result.Success;
   }
   
-  public async Task<Result> ResendVerifyAsync(string email)
+  public async Task<Result> ResendConfirmationAsync(string email)
   {
     var validationResult = await emailValidator.ValidateAsync(email);
     if (!validationResult.IsValid)
@@ -145,17 +146,18 @@ public class AuthService(
         "USER_IS_ACTIVE"
       );
 
-    var existsToken = await verTokenRepository.GetByUserIdAsync(user.Id);
+    var existsToken = await tokenRepository.GetByUserIdAsync(user.Id);
     if (existsToken != null)
-      await verTokenRepository.DeleteAsync(existsToken.Id);
+      await tokenRepository.DeleteAsync(existsToken.Id);
     
-    var verificationToken = new EmailVerificationToken
+    var verificationToken = new UserToken
     {
       UserId = user.Id,
-      Token = Guid.NewGuid().ToString(),
+      Token = Guid.NewGuid().ToString("N"),
       ExpiresAt = DateTime.UtcNow.AddDays(2),
+      Type = UserTokenType.ConfirmationEmail
     };
-    await verTokenRepository.CreateAsync(verificationToken);
+    await tokenRepository.CreateAsync(verificationToken);
     
     await emailService.SendEmailVerificationAsync(email, verificationToken.Token);
     
@@ -197,7 +199,7 @@ public class AuthService(
           Other = "ACCOUNT_NOT_ACTIVE"
         });
     
-    if (!passwordService.VerifyPassword(dto.Password, user.PasswordHash!))
+    if (!PasswordHasher.VerifyPassword(dto.Password, user.PasswordHash!))
       return Result<AuthDto>.Failure(
         ErrorType.Conflict,
         new
@@ -205,7 +207,7 @@ public class AuthService(
           Password = "PASSWORD_INVALID"
         });
     
-    var accessToken = authTokenService.GenerateAccessToken(user);
+    var accessToken = jwtTokenGenerator.GenerateAccessToken(user);
     var auth = new AuthDto
     {
       AccessToken = accessToken,
@@ -213,45 +215,51 @@ public class AuthService(
     
     if (dto.RememberMe)
     {
-      var refreshToken = authTokenService.GenerateRefreshToken(user.Id);
-      await refTokenRepository.CreateAsync(refreshToken);
+      var refreshToken = new UserToken
+      {
+        UserId = user.Id,
+        Token = Guid.NewGuid().ToString("N"),
+        ExpiresAt = DateTime.UtcNow.AddDays(7),
+        Type = UserTokenType.RefreshAuth
+      };
+      await tokenRepository.CreateAsync(refreshToken);
       auth.RefreshToken = refreshToken.Token;
     }
     
     return Result<AuthDto>.Success(auth);
   }
   
-  public async Task<Result<string>> RefreshTokenAsync(string token)
+  public async Task<Result<string>> RefreshAuthAsync(string token)
   {
-    var refToken = await refTokenRepository.GetByTokenAsync(token);
+    var refToken = await tokenRepository.GetByTokenAsync(token);
     if (refToken == null)
       return Result<string>.Failure(ErrorType.NotFound, "Token not found");
     
     if (refToken.ExpiresAt < DateTime.UtcNow)
     {
-      await refTokenRepository.DeleteAsync(refToken.Id);
+      await tokenRepository.DeleteAsync(refToken.Id);
       return Result<string>.Failure(ErrorType.Conflict, "Token is expired");
     }
     
     var user = await userRepository.GetByIdAsync(refToken.UserId);
     if (user == null)
     {
-      await refTokenRepository.DeleteAsync(refToken.Id);
+      await tokenRepository.DeleteAsync(refToken.Id);
       return Result<string>.Failure(ErrorType.NotFound, "User by this token not found");
     }
     
-    var accessToken = authTokenService.GenerateAccessToken(user);
+    var accessToken = jwtTokenGenerator.GenerateAccessToken(user);
     
     return Result<string>.Success(accessToken);
   }
   
-  public async Task<Result> RevokeTokenAsync(string token)
+  public async Task<Result> RevokeAuthAsync(string token)
   {
-    var refToken = await refTokenRepository.GetByTokenAsync(token);
+    var refToken = await tokenRepository.GetByTokenAsync(token);
     if (refToken == null)
       return Result.Failure(ErrorType.NotFound, "TOKEN_NOT_FOUND");
     
-    await refTokenRepository.DeleteAsync(refToken.Id);
+    await tokenRepository.DeleteAsync(refToken.Id);
     return Result.Success;
   }
   
@@ -271,13 +279,14 @@ public class AuthService(
         "USER_BY_THIS_EMAIL_NOT_FOUND"
       );
     
-    var token = new ResetPasswordToken
+    var token = new UserToken
     {
       UserId = user.Id,
       Token = Guid.NewGuid().ToString("N"),
       ExpiresAt = DateTime.UtcNow.AddDays(2),
+      Type = UserTokenType.ResetPassword
     };
-    await resetPasswordTokenRepository.CreateAsync(token);
+    await tokenRepository.CreateAsync(token);
     await emailService.SendPasswordResetAsync(email, token.Token);
     
     return Result.Success;
@@ -294,20 +303,20 @@ public class AuthService(
       );
     }
     
-    var resToken = await resetPasswordTokenRepository.GetByTokenAsync(dto.Token);
+    var resToken = await tokenRepository.GetByTokenAsync(dto.Token);
     if (resToken == null)
       return Result.Failure(ErrorType.NotFound, "TOKEN_NOT_FOUND");
     
     var user = await userRepository.GetByIdAsync(resToken.UserId);
     if (user == null)
     {
-      await resetPasswordTokenRepository.DeleteAsync(resToken);
+      await tokenRepository.DeleteAsync(resToken.Id);
       return Result.Failure(ErrorType.NotFound, "USER_BY_THIS_TOKEN_NOT_FOUND");
     }
     
-    user.PasswordHash = passwordService.HashPassword(dto.NewPassword);
+    user.PasswordHash = PasswordHasher.HashPassword(dto.NewPassword);
     await userRepository.UpdateAsync(user);
-    await resetPasswordTokenRepository.DeleteAsync(resToken);
+    await tokenRepository.DeleteAsync(resToken.Id);
     
     return Result.Success;
   }

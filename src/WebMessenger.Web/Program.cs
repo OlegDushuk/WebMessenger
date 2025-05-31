@@ -10,6 +10,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped<IAuthState, AuthState>();
 builder.Services.AddScoped<IUserState, UserState>();
+builder.Services.AddScoped<IChatState, ChatState>();
 
 builder.Services.AddTransient(sp =>
 {
@@ -23,7 +24,10 @@ builder.Services.AddTransient(sp =>
   return httpClient;
 });
 
-builder.Services.AddTransient<IAuthApiSource, AuthApiSource>();
-builder.Services.AddTransient<IAccountApiSource, AccountApiSource>();
+builder.Services.AddTransient<IAuthApi, AuthApi>();
+builder.Services.AddTransient<IAccountApi, AccountApi>();
+builder.Services.AddTransient<IChatApi, ChatApi>();
+
+builder.Services.AddSingleton<IChatNotificationService, ChatNotificationService>();
 
 await builder.Build().RunAsync();

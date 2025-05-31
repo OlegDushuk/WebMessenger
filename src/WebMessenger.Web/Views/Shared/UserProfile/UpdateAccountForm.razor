@@ -1,0 +1,48 @@
+﻿<EditForm Model="_model" OnValidSubmit="SaveData">
+  <h4 class="form__label">
+    Облікові дані
+  </h4>
+
+  <div class="form__item">
+    <InputText class="field"
+               id="username"
+               type="text"
+               @bind-Value="_model.UserName"
+               placeholder="Нове ім'я користувача..."/>
+  </div>
+
+  <div class="form__item">
+    <InputText class="field"
+               id="name"
+               type="text"
+               @bind-Value="_model.Name"
+               placeholder="Нове ім'я..."/>
+  </div>
+
+  <div class="form__item">
+    <InputTextArea class="text-area"
+                   id="bio"
+                   @bind-Value="_model.Bio"
+                   placeholder="Опис профілю..."/>
+  </div>
+
+  <div class="form__item">
+    <button class="btn btn_opacity" disabled="@_isLoading">
+      @if (_isLoading)
+      {
+        <span>Зачекайте...</span>
+      }
+      else
+      {
+        <span>Зберегти</span>
+      }
+    </button>
+  </div>
+
+  @if (_isSuccess)
+  {
+    <div class="form__item">
+      <p class="color-success">Зміни збережено</p>
+    </div>
+  }
+</EditForm>
