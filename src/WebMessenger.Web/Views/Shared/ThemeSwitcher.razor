@@ -1,0 +1,38 @@
+﻿@inject IThemeService ThemeService
+
+<button class="btn btn_opacity btn_icon" @onclick="HandleClick">
+  @if (_currentTheme == Theme.Dark)
+  {
+    <MoonIcon />
+  }
+  else
+  {
+    <SunIcon />
+  }
+</button>
+
+@code {
+
+  private Theme _currentTheme;
+
+  protected override async Task OnInitializedAsync()
+  {
+    _currentTheme = await ThemeService.GetTheme();
+    await base.OnInitializedAsync();
+  }
+
+  private async Task HandleClick()
+  {
+    if (await ThemeService.GetTheme() == Theme.Dark)
+    {
+      await ThemeService.SetTheme(Theme.Light);
+      _currentTheme = Theme.Light;
+    }
+    else
+    {
+      await ThemeService.SetTheme(Theme.Dark);
+      _currentTheme = Theme.Dark;
+    }
+  }
+  
+}

@@ -27,4 +27,9 @@ public class ChatApi(
   {
     return await httpClient.PostAsJsonAsync("api/chat/group", dto);
   }
+
+  public async Task<HttpResponseMessage> SendMessageAsync(SendMessageDto dto)
+  {
+    return await httpClient.PostAsJsonAsync("api/chat/send", dto);
+  }
 }

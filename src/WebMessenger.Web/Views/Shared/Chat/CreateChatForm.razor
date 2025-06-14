@@ -1,5 +1,4 @@
-﻿@using WebMessenger.Core.Enums
-<EditForm Model="_model" OnValidSubmit="HandleCreateChat">
+﻿<EditForm Model="_model" OnValidSubmit="HandleCreateChat">
   <DataAnnotationsValidator />
 
   <div class="form__item">
@@ -18,11 +17,11 @@
   <div class="form__item">
     <label class="form__label">Тип чату</label>
     <InputRadioList
-      TEnum="GroupType"
-      DisplayNames="@(new Dictionary<GroupType, string>
+      TEnum="GroupTypeDto"
+      DisplayNames="@(new Dictionary<GroupTypeDto, string>
                     {
-                      { GroupType.Public, "Відкритий" },
-                      { GroupType.Private, "Приватний" },
+                      { GroupTypeDto.Public, "Відкритий" },
+                      { GroupTypeDto.Private, "Приватний" },
                     })"
       @bind-Value="@_model.Type" />
   </div>

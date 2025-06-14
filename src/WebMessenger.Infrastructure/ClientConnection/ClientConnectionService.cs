@@ -6,10 +6,10 @@ namespace WebMessenger.Infrastructure.ClientConnection;
 
 public class ClientConnectionService(IHubContext<ClientHub> hubContext) : IClientConnectionService
 {
-  public async Task SendMessageToChat(Guid chatId, ChatMessageDto message)
+  public async Task SendMessageToChat(ChatMessageDto message)
   {
     await hubContext.Clients
-      .Group($"{chatId}")
+      .Group($"{message.ChatId}")
       .SendAsync("ReceiveMessage", message);
   }
 }

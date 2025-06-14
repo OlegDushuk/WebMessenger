@@ -40,6 +40,16 @@ public class ChatRepository(WebMessengerDbContext dbContext) : IChatRepository
       .ToListAsync();
   }
   
+  public async Task<List<Chat>> FindBySearchRequestAsync(string searchRequest)
+  {
+    return await dbContext.Chats
+      .Include(c => c.GroupDetails)
+      .Where(chat => chat.Type == ChatType.Group &&
+                     chat.GroupDetails!.Type == GroupType.Public &&
+                     chat.GroupDetails.Name!.ToLower().Contains(searchRequest.ToLower()))
+      .ToListAsync();
+  }
+
   public async Task CreateChatAsync(Chat chat)
   {
     dbContext.Chats.Add(chat);

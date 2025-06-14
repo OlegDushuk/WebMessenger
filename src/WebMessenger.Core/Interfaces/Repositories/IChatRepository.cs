@@ -8,6 +8,8 @@ public interface IChatRepository
   Task<Chat?> GetChatByIdAsync(Guid id);
   Task<List<Chat>> GetChatsByUserIdAsync(Guid userId);
   
+  Task<List<Chat>> FindBySearchRequestAsync(string searchRequest);
+  
   Task CreateChatAsync(Chat chat);
   Task DeleteChatAsync(Chat chat);
   

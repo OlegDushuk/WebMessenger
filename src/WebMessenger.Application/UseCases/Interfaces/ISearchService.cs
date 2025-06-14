@@ -5,6 +5,6 @@ namespace WebMessenger.Application.UseCases.Interfaces;
 
 public interface ISearchService
 {
-  Task<Result<List<UserDto>>> FindUsers(string searchRequest);
+  Task<Result<List<SearchItemDto>>> FindUsers(string searchRequest);
   Task<Result<List<SearchItemDto>>> FindChats(string searchRequest);
 }

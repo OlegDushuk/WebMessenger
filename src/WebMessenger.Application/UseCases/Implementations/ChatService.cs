@@ -35,8 +35,7 @@ public class ChatService(
     {
       var chatDto = mapper.Map<ChatDto>(member.Chat);
       
-      var currentMember = userMembers.First(cm => cm.UserId == user.Id);
-      chatDto.CurrentMember = mapper.Map<ChatMemberDto>(currentMember);
+      chatDto.CurrentMember = mapper.Map<ChatMemberDto>(member);
       
       if (member.Chat.Type == ChatType.Personal)
       {
@@ -329,7 +328,7 @@ public class ChatService(
     await messageRepository.CreateAsync(message);
     
     var messageDto = mapper.Map<ChatMessageDto>(message);
-    await clientConnectionService.SendMessageToChat(message.ChatId, messageDto);
+    await clientConnectionService.SendMessageToChat(messageDto);
     
     return Result<ChatMessageDto>.Success(messageDto);
   }

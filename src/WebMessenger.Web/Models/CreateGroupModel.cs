@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using WebMessenger.Core.Enums;
+using WebMessenger.Shared.Enums;
 
 namespace WebMessenger.Web.Models;
 
@@ -9,5 +9,5 @@ public class CreateGroupModel
   public string? Name { get; set; }
   public string? Bio { get; set; }
   public string? AvatarUrl { get; set; }
-  public GroupType Type { get; set; }
+  public GroupTypeDto Type { get; set; }
 }

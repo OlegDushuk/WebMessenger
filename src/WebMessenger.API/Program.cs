@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using WebMessenger.Application;
 using WebMessenger.Infrastructure;
 using WebMessenger.Infrastructure.ClientConnection;
@@ -21,7 +22,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
-   builder.Services.AddSwaggerGen(c =>
+  builder.Services.AddSwaggerGen(c =>
    {
      c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebMessenger API", Version = "v1" });
      
@@ -75,6 +76,10 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication(builder.Configuration);
 
 builder.Services.AddSignalR();
+
+builder.Logging.ClearProviders();
+builder.Host.UseSerilog((context, _, configuration) =>
+  configuration.ReadFrom.Configuration(context.Configuration));
 
 var app = builder.Build();
 

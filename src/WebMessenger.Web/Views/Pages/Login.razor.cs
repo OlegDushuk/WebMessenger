@@ -37,7 +37,7 @@ public partial class Login : ComponentBase
         if (authResult == null)
           throw new NullReferenceException(nameof(authResult));
         
-        AuthState.Authenticate(authResult.AccessToken);
+        await AuthState.Authenticate(authResult.AccessToken);
         NavManager.NavigateTo("/");
       },
       onFailure: async response =>

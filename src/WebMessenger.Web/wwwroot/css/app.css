@@ -30,21 +30,19 @@
   --bg-main: #0F0F23;
   --bg-card: #28283C;
   --text-primary: #FFFFFF;
-  --text-secondary: #FFFFFFB3;
-  --border: 1px solid rgba(255, 255, 255, 0.1);
-  --chat-link-selected: #242740;
+  --text-secondary: #E4E4E4;
+  --border: 1px solid #3A3A48;
   --bg-input: #292943;
-  --bg-checkbox: rgba(255, 255, 255, 0.1);
+  --bg-btn-opacity: rgba(255, 255, 255, 0.1);
 }
 .light-mode {
-  --bg-main: #E1E3EF;
-  --bg-card: #FFFFFF;
+  --bg-main: #F6F6F6;
+  --bg-card: #ECEAFF;
   --text-primary: #000000;
-  --text-secondary: #000000B3;
-  --border: 1px solid rgba(0, 0, 0, 0.1);
-  --chat-link-selected: #F1F3FF;
+  --text-secondary: #414141;
+  --border: 1px solid #CFCFCF;
   --bg-input: #E3E3E3;
-  --bg-checkbox: rgba(0, 0, 0, 0.1);
+  --bg-btn-opacity: rgba(0, 0, 0, 0.1);
 }
 
 *{
@@ -174,7 +172,7 @@ a:hover{
 
   padding: 12px;
 
-  color: #FFFFFF;
+  color: var(--text-secondary);;
   background-color: var(--def-color);
   border-radius: 10px;
 
@@ -183,6 +181,10 @@ a:hover{
   font-weight: 600;
   
   transition: .2s ease;
+
+  path {
+    fill: var(--text-secondary);
+  }
 }
 .btn.btn_sm {
   padding: 5px;
@@ -205,12 +207,9 @@ a:hover{
 }
 .btn.btn_opacity{
   --def-color: transperent;
-  --hover-color: rgba(0, 0, 0, 0.2);
+  --hover-color: var(--bg-btn-opacity);
 }
 .btn.btn_icon{
-  path {
-    fill: var(--text-secondary);
-  }
   --radius: 50%;
 }
 .btn.btn_form-submit{
@@ -232,7 +231,8 @@ a:hover{
 
   margin-right: 5px;
 
-  background-color: var(--bg-checkbox);
+  background-color: var(--bg-input);
+  border: var(--border);
   border-radius: 4px;
 
   cursor: pointer;

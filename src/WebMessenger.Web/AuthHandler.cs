@@ -18,7 +18,7 @@ public class AuthHandler : DelegatingHandler
   {
     request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
     
-    var token = _authState.GetToken;
+    var token = await _authState.GetToken();
     if (!string.IsNullOrEmpty(token))
       request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             

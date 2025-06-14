@@ -1,12 +1,10 @@
 ﻿.settings {
   background-color: var(--bg-card);
-  border-radius: var(--def-border-radius);
+  border: var(--border);
+  border-radius: 10px;
 
-  height: 0;
-  overflow-y: auto;
-}
-.settings.settings_show {
   height: 330px;
+  overflow-y: auto;
 }
 
 .settings__container {

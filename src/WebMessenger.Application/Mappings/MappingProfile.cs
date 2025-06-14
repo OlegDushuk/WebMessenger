@@ -26,5 +26,14 @@ public class MappingProfile : Profile
       .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar));
 
     CreateMap<Chat, ChatDto>();
+    
+    CreateMap<User, SearchItemDto>()
+      .ForMember(dest => dest.Type, opt => opt.MapFrom(src => SearchItemTypeDto.User));
+    
+    CreateMap<Chat, SearchItemDto>()
+      .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.GroupDetails!.Name))
+      .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.GroupDetails!.Avatar))
+      .ForMember(dest => dest.Bio, opt => opt.MapFrom(src => src.GroupDetails!.Bio))
+      .ForMember(dest => dest.Type, opt => opt.MapFrom(src => SearchItemTypeDto.Group));
   }
 }

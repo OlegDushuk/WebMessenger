@@ -1,0 +1,33 @@
+﻿<div class="profile-modal__item">
+  <button class="btn btn_opacity" @onclick="SwitchSettings">
+    <SettingsIcon/>
+    Налаштування
+    <VerticalArrowIcon ToDown="@(!_isShowSettings)"/>
+  </button>
+
+  <button class="btn btn_opacity" @onclick="HandleLogout">
+    <LogoutIcon/>
+    Вийти
+  </button>
+</div>
+
+@if (_isShowSettings)
+{
+  <div class="profile-modal__item">
+    <article class="settings">
+      <div class="settings__container">
+        <section class="settings__section">
+          <UpdateAccountForm/>
+        </section>
+
+        <section class="settings__section">
+          <ChangePasswordForm/>
+        </section>
+
+        <section class="settings__section">
+          <DeleteAccountPanel/>
+        </section>
+      </div>
+    </article>
+  </div>
+}

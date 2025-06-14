@@ -1,17 +1,23 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using Blazored.SessionStorage;
 using WebMessenger.Web.Services.Interfaces;
 
 namespace WebMessenger.Web.Services.Implementations;
 
-public class AuthState : IAuthState
+public class AuthState(ISessionStorageService storage) : IAuthState
 {
-  public string? GetToken { get; private set; }
+  public async Task<string?> GetToken()
+  {
+    return await storage.GetItemAsync<string>("AccessToken");
+  }
   
-  public bool IsAuthenticated =>
-    GetToken != null
-    && _expiry > DateTime.UtcNow;
+  public async Task<bool> IsAuthenticated()
+  {
+    var token = await GetToken();
+    return token != null && _expiry > DateTime.UtcNow;
+  }
   
-  public void Authenticate(string token)
+  public async Task Authenticate(string token)
   {
     var tokenHandler = new JwtSecurityTokenHandler();
     
@@ -23,13 +29,13 @@ public class AuthState : IAuthState
         _expiry = DateTimeOffset.FromUnixTimeSeconds(expLong).DateTime.ToLocalTime();
       }
     }
-    
-    GetToken = token;
+
+    await storage.SetItemAsync("AccessToken", token);
   }
   
-  public void Logout()
+  public async Task Logout()
   {
-    GetToken = null;
+    await storage.RemoveItemAsync("AccessToken");
   }
   
   private DateTime _expiry = DateTime.UtcNow;

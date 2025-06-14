@@ -1,0 +1,33 @@
+﻿<button class="search-item" @onclick="@HandleClick">
+  <div class="search-item__avatar">
+    <Avatar Url="@Model.Avatar" Width="50" Height="50"/>
+  </div>
+
+  <div class="search-item__content">
+    <div class="search-item__name">
+      @Model.Name
+    </div>
+    
+    <div class="search-item__info">
+      @if (Model.Type == SearchItemTypeDto.User)
+      {
+        <span>@@@Model.UserName</span>
+      }
+      else
+      {
+        @Model.Bio
+      }
+    </div>
+  </div>
+</button>
+
+@code {
+  [Parameter] public SearchItemModel Model { get; set; } = null!;
+  [Parameter] public EventCallback<SearchItemModel> OnClick { get; set; }
+
+  private void HandleClick()
+  {
+    if (OnClick.HasDelegate)
+      OnClick.InvokeAsync(Model);
+  }
+}

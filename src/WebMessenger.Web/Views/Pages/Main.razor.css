@@ -48,25 +48,41 @@
   display: flex;
   align-items: center;
 }
-.profile-bar__item{
+.profile-bar__left{
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
+}
+.profile-bar__right{
+  display: flex;
+  gap: 5px;
+}
+
+.profile-bar__user{
+  display: flex;
+  overflow: hidden;
+}
+.profile-bar__avatar{
   margin-right: 20px;
 }
-.profile-bar__item:last-child{
-  margin-right: 0;
-}
 .profile-bar__info{
-  flex-grow: 1;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  overflow: hidden;
 }
 .profile-bar__full-name{
-  margin-bottom: 12px;
   color: var(--text-primary);
+  line-height: 20px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 .profile-bar__username{
   font-size: 12px;
   font-weight: 400;
-  line-height: 9px;
+  line-height: 14px;
   color: var(--text-secondary);
 }
 

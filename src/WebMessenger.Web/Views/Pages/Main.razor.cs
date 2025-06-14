@@ -12,19 +12,32 @@ public partial class Main
 {
   [Inject] private IAuthApi AuthApi { get; set; } = null!;
   [Inject] private IAccountApi AccountApi { get; set; } = null!;
+  [Inject] private IChatApi ChatApi { get; set; } = null!;
+  [Inject] private IChatState ChatState { get; set; } = null!;
+  [Inject] private IChatNotificationService ChatNotificationService { get; set; } = null!;
   [Inject] private NavigationManager NavigationManager { get; set; } = null!;
-
+  
   private ModalView _modalView = null!;
   
   private ModalTemplate _profile = null!;
   private ModalTemplate _createChatForm = null!;
 
+  private bool _isAuthorized;
+  private string? _searchQuery;
+  private string _title = "Автентифікація";
+
   protected override async Task OnInitializedAsync()
   {
-    if (!AuthState.IsAuthenticated)
+    _isAuthorized = await AuthState.IsAuthenticated();
+    
+    if (!_isAuthorized)
       await AuthenticateUserAsync();
     else
+    {
       await FetchUserAsync();
+      await FetchChatsAsync();
+      _title = UserState.User?.Name ?? "";
+    }
   }
   
   private async Task AuthenticateUserAsync()
@@ -36,8 +49,13 @@ public partial class Main
         if (string.IsNullOrEmpty(authResult))
           throw new NullReferenceException(nameof(authResult));
 
-        AuthState.Authenticate(authResult);
+        await AuthState.Authenticate(authResult);
+        _isAuthorized = true;
+        StateHasChanged();
+        
         await FetchUserAsync();
+        await FetchChatsAsync();
+        _title = UserState.User?.Name ?? "";
       },
       onFailure: async response =>
       {
@@ -47,7 +65,10 @@ public partial class Main
 
         NavigationManager.NavigateTo("/auth/login");
       },
-      onException: exception => { NavigationManager.NavigateTo("/auth/login"); });
+      onException: _ =>
+      {
+        NavigationManager.NavigateTo("/auth/login");
+      });
   }
   
   private async Task FetchUserAsync()
@@ -68,8 +89,37 @@ public partial class Main
         if (error == null)
           throw new NullReferenceException(nameof(error));
       },
-      onException: ex =>
+      onException: _ =>
       {
+      });
+  }
+  
+  private async Task FetchChatsAsync()
+  {
+    await HttpHelper.FetchAsync(async () => await ChatApi.GetChatsAsync(),
+      onSuccess: async response =>
+      {
+        var dtos = await response.Content.ReadFromJsonAsync<List<ChatDto>>();
+        if (dtos == null)
+          throw new NullReferenceException(nameof(dtos));
+        
+        var chats = dtos.Select(dto => new ChatModel(dto)).ToList();
+        ChatState.AddChats(chats);
+        StateHasChanged();
+        
+        ChatNotificationService.OnReceiveMessage += dto =>
+        {
+          ChatState.ReceiveMessage(dto);
+        };
+        
+        var chatIds = chats.Select(c => c.Id);
+        await ChatNotificationService.InitConnectionAsync(UserState.User!.Id, chatIds);
+      },
+      onFailure: async response =>
+      {
+        var error = await response.Content.ReadAsStringAsync();
+        if (error == null)
+          throw new NullReferenceException(nameof(error));
       });
   }
 }

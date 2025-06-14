@@ -8,4 +8,5 @@ public interface IChatApi
   Task<HttpResponseMessage> GetChatHistoryAsync(Guid chatId, int page, int pageSize);
   Task<HttpResponseMessage> GetChatMembers(Guid chatId);
   Task<HttpResponseMessage> CreateGroupAsync(CreateGroupChatDto dto);
+  Task<HttpResponseMessage> SendMessageAsync(SendMessageDto dto);
 }

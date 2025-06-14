@@ -19,6 +19,7 @@ public static class DependencyInjection
     services.AddScoped<IAuthService, AuthService>();
     services.AddScoped<IAccountService, AccountService>();
     services.AddScoped<IChatService, ChatService>();
+    services.AddScoped<ISearchService, SearchService>();
     
     services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
     services.AddTransient<IJwtTokenGenerator, JwtTokenGenerator>();

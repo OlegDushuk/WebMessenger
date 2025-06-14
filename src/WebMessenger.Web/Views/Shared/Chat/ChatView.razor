@@ -36,7 +36,7 @@
                  @bind-Value="Model.CurrentMessage"
                  placeholder="Написати повідомлення..."/>
 
-      <button class="btn btn_icon" @onclick="SendMessage">
+      <button class="btn btn_icon" @onclick="SendMessage" disabled="@(_isSendingMessage)">
         <SendIcon/>
       </button>
     </div>
@@ -48,7 +48,9 @@
 }
 else
 {
-  <p>Select chat</p>
+  <div class="chat-view__no-chat">
+    <span>Виберіть чат, щоб почати розмову</span>
+  </div>
 }
 
 

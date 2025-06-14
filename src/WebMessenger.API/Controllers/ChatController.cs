@@ -7,7 +7,6 @@ using WebMessenger.Shared.DTOs.Requests;
 
 namespace WebMessenger.API.Controllers;
 
-
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]

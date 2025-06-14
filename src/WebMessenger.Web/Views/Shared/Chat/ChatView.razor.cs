@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using WebMessenger.Shared.DTOs.Requests;
 using WebMessenger.Shared.DTOs.Responses;
 using WebMessenger.Web.Models;
 using WebMessenger.Web.Services.Interfaces;
@@ -14,13 +15,13 @@ public partial class ChatView : ComponentBase
   private ChatModel? Model => ChatState.CurrentChat;
   
   [Inject] public IJSRuntime Js { get; set; } = null!;
-  [Inject] public IUserState UserState { get; set; } = null!;
   [Inject] public IChatState ChatState { get; set; } = null!;
   [Inject] public IChatApi ChatApi { get; set; } = null!;
   
   private ModalTemplate _chatInfoModal = null!;
   
   private bool _isLoadingHistory;
+  private bool _isSendingMessage;
 
   protected override async Task OnInitializedAsync()
   {
@@ -29,12 +30,12 @@ public partial class ChatView : ComponentBase
       if (Model == null) return;
       
       Model.OnChangeState += () => { InvokeAsync(StateHasChanged); };
+      await ScrollToBottom();
         
       if (Model.FirstSelected)
       {
         await LoadMembers();
         await LoadNextPage();
-        await ScrollToBottom();
       
         Model.FirstSelected = false;
       }
@@ -55,8 +56,36 @@ public partial class ChatView : ComponentBase
     if (string.IsNullOrEmpty(Model!.CurrentMessage))
       return;
     
-    // TODO: Send message logic
+    _isSendingMessage = true;
     
+    await HttpHelper.FetchAsync(() => ChatApi.SendMessageAsync(new SendMessageDto
+      {
+        Content = Model.CurrentMessage,
+        MemberId = Model.CurrentMember.Id
+      }),
+      onSuccess: async response =>
+      {
+        var messageDto = await response.Content.ReadFromJsonAsync<ChatMessageDto>();
+        if (messageDto == null)
+          throw new NullReferenceException(nameof(messageDto));
+        
+        Console.WriteLine("Member: " + Model.CurrentMember.Id);
+        Console.WriteLine("Chat: " + Model.Id);
+      },
+      onFailure: async response =>
+      {
+        var error = await response.Content.ReadAsStringAsync();
+        if (error == null)
+          throw new NullReferenceException(nameof(error));
+        
+        
+      },
+      onException: exception =>
+      {
+        
+      });
+    
+    _isSendingMessage = false;
     Model.CurrentMessage = string.Empty;
   }
   

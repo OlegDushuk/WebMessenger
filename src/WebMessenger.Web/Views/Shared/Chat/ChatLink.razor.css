@@ -4,9 +4,10 @@
   align-items: center;
   padding: 10px;
   background: transparent;
+  transition: .2s ease;
 }
 .chat-link:not(.chat-link_selected):hover{
-  background-color: var(--chat-link-hover);
+  background-color: var(--bg-btn-opacity);
 }
 .chat-link_selected{
   background-color: var(--accent-color);
@@ -31,6 +32,7 @@
 }
 
 .chat-link__name{
+  color: var(--text-primary);
   margin-right: auto;
   font-size: 16px;
   font-weight: 600;
@@ -48,7 +50,7 @@
   color: var(--text-secondary);
 
   font-size: 12px;
-  font-weight: 400;
+  font-weight: 600;
   white-space: nowrap;
 }
 .chat-link__last-msg-content{

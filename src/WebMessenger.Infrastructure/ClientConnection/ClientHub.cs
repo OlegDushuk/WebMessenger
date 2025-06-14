@@ -5,15 +5,24 @@ namespace WebMessenger.Infrastructure.ClientConnection;
 
 public class ClientHub(ConnectionClientStorage storage) : Hub
 {
-  public async Task Init(Guid userId, IEnumerable<Guid> chatIds)
+  public async Task Init(Guid userId, List<Guid> chatIds)
   {
     storage.AddUser(userId, Context.ConnectionId);
     
-    var enumerable = chatIds as Guid[] ?? chatIds.ToArray();
-    foreach (var chatId in enumerable)
+    foreach (var chatId in chatIds)
     {
       await Groups.AddToGroupAsync(Context.ConnectionId, $"{chatId}");
     }
+  }
+  
+  public async Task InitChat(Guid chatId)
+  {
+    await Groups.AddToGroupAsync(Context.ConnectionId, $"{chatId}");
+  }
+
+  public async Task DisconnectChat(Guid chatId)
+  {
+    await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"{chatId}");
   }
   
   public override Task OnDisconnectedAsync(Exception? exception)

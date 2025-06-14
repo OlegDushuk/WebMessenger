@@ -3,16 +3,16 @@
 @inject IAuthState AuthState
 @inject IUserState UserState
 
-<PageTitle>Web messenger - @UserState.User?.Name</PageTitle>
+<PageTitle>Web messenger - @_title</PageTitle>
 
-@if (AuthState.IsAuthenticated)
+@if (_isAuthorized)
 {
   <main class="main-page">
     <CascadingValue Value="_modalView" Name="GlobalModal">
       <ModalView @ref="_modalView" />
       
       <ModalTemplate @ref="_profile" Title="Мій профіль">
-        <UserProfileView />
+        <UserProfileView Model="UserState.User" IsOwn="true" />
       </ModalTemplate>
       
       <ModalTemplate @ref="_createChatForm" Title="Створити новий чат">
@@ -24,28 +24,32 @@
           <div class="sidebar__top">
             <div class="sidebar__item">
               <article class="profile-bar">
-                <div class="profile-bar__info">
-                  @if (@UserState.User != null)
-                  {
-                    <div class="profile-bar__item">
-                      <Avatar Url="@UserState.User.AvatarUrl" Width="50" Height="50"/>
-                    </div>
+                <div class="profile-bar__left">
+                  <div class="profile-bar__user">
+                    @if (@UserState.User != null)
+                    {
+                      <div class="profile-bar__avatar">
+                        <Avatar Url="@UserState.User.AvatarUrl" Width="50" Height="50"/>
+                      </div>
 
-                    <div class="profile-bar__item">
-                      <p class="profile-bar__full-name user-full-name">@UserState.User.Name</p>
-                      <p class="profile-bar__username">@@@UserState.User.UserName</p>
-                    </div>
-                  }
-                  else
-                  {
-                    <p>...</p>
-                  }
+                      <div class="profile-bar__info">
+                        <p class="profile-bar__full-name user-full-name">@UserState.User.Name</p>
+                        <p class="profile-bar__username">@@@UserState.User.UserName</p>
+                      </div>
+                    }
+                    else
+                    {
+                      <p>...</p>
+                    }
+                  </div>
                 </div>
 
-                <div class="profile-bar__item">
+                <div class="profile-bar__right">
                   <button class="btn btn_opacity btn_icon" @onclick="() => { _profile.Open(); }">
                     <MenuBurgerIcon/>
                   </button>
+
+                  <ThemeSwitcher />
                 </div>
               </article>
             </div>
@@ -53,7 +57,11 @@
             <div class="sidebar__item">
               <div class="sidebar__tools">
                 <div class="sidebar__search-wrapper">
-                  <input class="field" type="text" placeholder="Пошук..."/>
+                  <input class="field"
+                             type="text"
+                             @bind="_searchQuery"
+                             @bind:event="oninput"
+                             placeholder="Пошук..."/>
                 </div>
 
                 <div class="sidebar__create-chat-wrapper">
@@ -64,8 +72,17 @@
               </div>
             </div>
           </div>
-
-          <ChatList />
+          
+          <div>
+            @if (string.IsNullOrEmpty(_searchQuery))
+            {
+              <ChatList />
+            }
+            else
+            {
+              <SearchList SearchRequest="@_searchQuery" />
+            }
+          </div>
         </div>
       </aside>
 

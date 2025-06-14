@@ -4,5 +4,5 @@ namespace WebMessenger.Core.Interfaces.Services;
 
 public interface IClientConnectionService
 {
-  Task SendMessageToChat(Guid chatId, ChatMessageDto message);
+  Task SendMessageToChat(ChatMessageDto message);
 }

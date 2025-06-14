@@ -20,7 +20,7 @@ public class ChatNotificationService : IChatNotificationService
     _connection.On<ChatMessageDto>("ReceiveMessage", message =>
     {
       OnReceiveMessage?.Invoke(message);
-      Console.WriteLine(message.Content);
+      Console.WriteLine(message.ChatId);
     });
   }
   
@@ -29,5 +29,10 @@ public class ChatNotificationService : IChatNotificationService
     await _connection.StartAsync();
     
     await _connection.InvokeAsync("Init", userId, chatIds);
+  }
+  
+  public async Task ConnectToChatAsync(Guid chatId)
+  {
+    await _connection.InvokeAsync("InitChat", chatId);
   }
 }

@@ -1,4 +1,5 @@
-﻿using WebMessenger.Web.Models;
+﻿using WebMessenger.Shared.DTOs.Responses;
+using WebMessenger.Web.Models;
 using WebMessenger.Web.Services.Interfaces;
 
 namespace WebMessenger.Web.Services.Implementations;
@@ -42,5 +43,11 @@ public class ChatState : IChatState
     }
     
     OnChangeChats?.Invoke();
+  }
+
+  public void ReceiveMessage(ChatMessageDto dto)
+  {
+    var chat = Chats.First(x => x.Id == dto.ChatId);
+    chat.AddNewMessage(dto);
   }
 }

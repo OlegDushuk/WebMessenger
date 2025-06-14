@@ -35,3 +35,18 @@ window.updateScroll = (prevHeight) => {
     el.scrollTop += newHeight;
   }
 };
+
+window.setTheme = (theme) => {
+  const body = document.body;
+  
+  if (theme === 'light') {
+    body.classList.remove('dark-mode');
+    body.classList.add('light-mode');
+  } else if (theme === 'dark') {
+    body.classList.remove('light-mode');
+    body.classList.add('dark-mode');
+  } else {
+    console.warn(`Невідоме значення теми: ${theme}`);
+  }
+}
+

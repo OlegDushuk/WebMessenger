@@ -8,16 +8,31 @@ namespace WebMessenger.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(IAuthService authService) : ControllerBase
+public class AuthController(IAuthService authService, ILogger<AuthController> logger) : ControllerBase
 {
   [HttpPost("reg")]
   public async Task<IActionResult> Register([FromBody] RegisterDto request)
   {
+    logger.LogInformation("Registration started with data:" +
+                          "\n\tName: {name};\n\tUserName: {userName};" +
+                          "\n\tEmail: {email};\n\tPassword: {password};", 
+      request.Name, request.UserName, request.Email, request.Password);
+    
     var result = await authService.RegisterAsync(request);
 
     if (!result.IsSuccess)
+    {
+      logger.LogError("Registration failed with error:\n\tType: {errorType};\n\tDetails: {errorDetails};",
+        result.Error.Type, result.Error.Details);
+      
       return this.ProcessError(result.Error);
+    }
 
+    logger.LogInformation("Registration with data: "+
+                          "\n\tName: {name};\n\tUserName: {userName};" +
+                          "\n\tEmail: {email};\n\tPassword: {password};\nis successful;",
+      request.Name, request.UserName, request.Email, request.Password);
+    
     return Ok();
   }
 
@@ -46,17 +61,39 @@ public class AuthController(IAuthService authService) : ControllerBase
   [HttpPost("login")]
   public async Task<IActionResult> Login([FromBody]LoginDto request)
   {
+    logger.LogInformation("Login started with data:\n\tEmail: {email};\n\tPassword: {password};",
+      request.Email, request.Password);
     var result = await authService.LoginAsync(request);
 
+
     if (!result.IsSuccess)
+    {
+      logger.LogError("Login failed with error:\n\tType: {errorType};\n\tDetails: {errorDetails};",
+        result.Error.Type, result.Error.Details);
+      
       return this.ProcessError(result.Error);
+    }
     
     if (result.Data == null)
       throw new NullReferenceException(nameof(result.Data));
-    
+
     if (result.Data.RefreshToken != null)
-      Response.Cookies.Append("RefreshToken", result.Data.RefreshToken);
+    {
+      var cookieOptions = new CookieOptions
+      {
+        HttpOnly = true,
+        Secure = true,
+        SameSite = SameSiteMode.None,
+        Expires = DateTimeOffset.UtcNow.AddDays(7),
+        Path = "/"
+      };
       
+      Response.Cookies.Append("RefreshToken", result.Data.RefreshToken, cookieOptions);
+    }
+    
+    logger.LogInformation("Login with data:\n\tEmail: {email};\n\tPassword: {password};\nis successful;",
+      request.Email, request.Password);
+    
     return Ok(result.Data);
   }
   

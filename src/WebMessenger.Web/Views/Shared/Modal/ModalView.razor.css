@@ -20,7 +20,8 @@
   width: 500px;
   margin-top: 20px;
   background: var(--bg-main);
-  border-radius: var(--def-border-radius);
+  border: var(--border);
+  border-radius: 20px;
 }
 
 .modal__header {

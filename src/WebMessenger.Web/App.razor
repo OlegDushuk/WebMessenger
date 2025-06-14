@@ -6,3 +6,16 @@
     <p>Сторінку не знайдено.</p>
   </NotFound>
 </Router>
+
+@code {
+
+  [Inject] private IThemeService ThemeService { get; set; } = null!;
+
+  protected override async Task OnInitializedAsync()
+  {
+    await ThemeService.Initialize();
+    
+    await base.OnInitializedAsync();
+  }
+
+}

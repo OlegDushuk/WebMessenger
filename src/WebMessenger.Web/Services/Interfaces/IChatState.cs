@@ -1,4 +1,5 @@
-﻿using WebMessenger.Web.Models;
+﻿using WebMessenger.Shared.DTOs.Responses;
+using WebMessenger.Web.Models;
 
 namespace WebMessenger.Web.Services.Interfaces;
 
@@ -13,4 +14,6 @@ public interface IChatState
   
   public void AddChat(ChatModel chat);
   public void AddChats(IEnumerable<ChatModel> chats);
+
+  public void ReceiveMessage(ChatMessageDto dto);
 }
