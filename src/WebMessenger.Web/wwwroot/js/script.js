@@ -16,6 +16,22 @@ window.getScrollHeight = () => {
   return el.scrollHeight;
 };
 
+window.getScrollValue = () => {
+  const el = document.getElementById("chatContainer");
+  if (!el)
+    return 0;
+  
+  return el.scrollTop;
+};
+
+window.setScrollValue = (value) => {
+  const el = document.getElementById("chatContainer");
+  if (el){
+    el.scrollTop = value;
+    console.log(value)
+  }
+};
+
 window.getScrollPercentage = () => {
   const el = document.getElementById("chatContainer");
   if (!el) return 0;
@@ -28,7 +44,7 @@ window.getScrollPercentage = () => {
   return Math.floor((scrollTop / scrollHeight) * 100);
 };
 
-window.updateScroll = (prevHeight) => {
+window.saveScroll = (prevHeight) => {
   const el = document.getElementById("chatContainer");
   if (el) {
     const newHeight = el.scrollHeight - prevHeight;

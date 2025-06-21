@@ -1,31 +1,31 @@
-﻿<section class="profile-modal__section">
+﻿<section class="modal__section">
   <InfoBar
     AvatarUrl="@Model.AvatarUrl"
     Name="@Model.Name"
     Bio="@Model.Bio"/>
 </section>
 
-<section class="profile-modal__section">
-  <div class="profile-modal__item">
-    <p class="profile-modal__user-field color-accent">@Model.Email</p>
+<section class="modal__section">
+  <div class="modal__item">
+    <p class="user-field color-accent">@Model.Email</p>
     <p class="small-text">Ел. пошта</p>
   </div>
-    
-  <div class="profile-modal__item">
-    <p class="profile-modal__user-field color-accent">@@@Model.UserName</p>
+  
+  <div class="modal__item">
+    <p class="user-field color-accent">@@@Model.UserName</p>
     <p class="small-text">Ім'я користувача</p>
   </div>
 </section>
 
-<section class="profile-modal__section">
+<section class="modal__section">
   @if (IsOwn)
   {
     <UserManagePanel />
   }
   else
   {
-    <div class="profile-modal__item">
-      <button class="btn btn_opacity">
+    <div class="modal__item">
+      <button class="btn btn_opacity" @onclick="HandleClick">
         Написати
       </button>
     </div>

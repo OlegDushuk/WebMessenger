@@ -1,11 +1,13 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using WebMessenger.Application;
 using WebMessenger.Infrastructure;
 using WebMessenger.Infrastructure.ClientConnection;
+using WebMessenger.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -83,13 +85,14 @@ builder.Host.UseSerilog((context, _, configuration) =>
 
 var app = builder.Build();
 
+using var scope = app.Services.CreateScope();
+var db = scope.ServiceProvider.GetRequiredService<WebMessengerDbContext>();
+db.Database.Migrate();
+
 app.UseCors("AllowSpecificOrigin");
 
-if (app.Environment.IsDevelopment())
-{
-  app.UseSwagger();
-  app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

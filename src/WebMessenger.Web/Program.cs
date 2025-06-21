@@ -3,6 +3,7 @@ using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using WebMessenger.Web;
+using WebMessenger.Web.Services;
 using WebMessenger.Web.Services.Implementations;
 using WebMessenger.Web.Services.Interfaces;
 
@@ -24,7 +25,7 @@ builder.Services.AddTransient(sp =>
 
   var httpClient = new HttpClient(new AuthHandler(authState))
   {
-    BaseAddress = new Uri("https://localhost:7276/")
+    BaseAddress = new Uri("https://app-25061900251.azurewebsites.net")
   };
   
   return httpClient;
@@ -36,5 +37,6 @@ builder.Services.AddTransient<IChatApi, ChatApi>();
 builder.Services.AddTransient<ISearchApi, SearchApi>();
 
 builder.Services.AddSingleton<IChatNotificationService, ChatNotificationService>();
+builder.Services.AddSingleton<ChatViewState>();
 
 await builder.Build().RunAsync();

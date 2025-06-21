@@ -30,7 +30,7 @@
   --bg-main: #0F0F23;
   --bg-card: #28283C;
   --text-primary: #FFFFFF;
-  --text-secondary: #E4E4E4;
+  --text-secondary: #bcbcbc;
   --border: 1px solid #3A3A48;
   --bg-input: #292943;
   --bg-btn-opacity: rgba(255, 255, 255, 0.1);
@@ -48,10 +48,9 @@
 *{
   box-sizing: border-box;
 
-  scrollbar-color: var(--bg-input) transparent;
+  scrollbar-color: var(--text-secondary) transparent;
   scrollbar-width: thin;
 }
-
 body{
   margin:0;
   font-family: "Poppins", sans-serif;
@@ -64,6 +63,7 @@ input, textarea{
 button {
   border: none;
   cursor: pointer;
+  background: transparent;
   font-family: "Poppins", sans-serif;
 }
 button:has(svg) {
@@ -152,12 +152,18 @@ a:hover{
 }
 .text-area {
   resize: vertical;
+  padding-top: 10px;
+  padding-bottom: 10px;
   line-height: 16px;
 }
 .field {
   padding-top: 16px;
   padding-bottom: 16px;
-  line-height: 18px;
+  line-height: 16px;
+}
+.field__sm {
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 .field::placeholder, .text-area::placeholder {
   color: var(--text-secondary);
@@ -278,23 +284,27 @@ a:hover{
   font-weight: 700;
 }
 
-.profile-modal__section {
-  margin-bottom: 40px;
+.modal__second-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  
+  h3 {
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 20px;
+  }
 }
-.profile-modal__section:last-child {
-  margin-bottom: 0;
+.modal__section {
+  padding: 20px;
+  border-bottom: var(--border);
 }
-
-.profile-modal__item {
+.modal__section:last-child {
+  border-bottom: none;
+}
+.modal__item {
   margin-bottom: 20px;
 }
-.profile-modal__item:last-child {
+.modal__item:last-child {
   margin-bottom: 0;
-}
-.profile-modal__user-field {
-  margin-bottom: 10px;
-}
-.profile-modal__manage-panel {
-  display: flex;
-  justify-content: space-between;
 }

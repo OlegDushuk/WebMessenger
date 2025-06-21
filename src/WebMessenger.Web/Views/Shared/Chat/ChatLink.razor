@@ -1,4 +1,6 @@
-﻿@inject IChatState ChatState
+﻿@using WebMessenger.Web.Services
+@inject IChatState ChatState
+@inject ChatViewState ChatViewState
 
 <button class="chat-link @(ChatState.CurrentChat == Model ? "chat-link_selected" : "")"
         disabled="@(ChatState.CurrentChat == Model)" @onclick="OnClick">
@@ -28,7 +30,7 @@
   
   protected override async Task OnParametersSetAsync()
   {
-    ChatState.OnChatSelected += () =>
+    ChatState.OnChatSelected += chat =>
     {
       InvokeAsync(StateHasChanged);
     };
@@ -44,5 +46,6 @@
   private void OnClick()
   {
     ChatState.CurrentChat = Model;
+    ChatViewState.IsShowing = true;
   }
 }

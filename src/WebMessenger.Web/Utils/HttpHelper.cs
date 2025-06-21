@@ -1,6 +1,4 @@
-﻿using System.Net.Http.Json;
-
-namespace WebMessenger.Web.Utils;
+﻿namespace WebMessenger.Web.Utils;
 
 public static class HttpHelper
 {

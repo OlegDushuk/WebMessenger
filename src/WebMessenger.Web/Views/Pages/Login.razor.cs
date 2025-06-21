@@ -12,6 +12,9 @@ namespace WebMessenger.Web.Views.Pages;
 
 public partial class Login : ComponentBase
 {
+  [SupplyParameterFromQuery]
+  public string? Email { get; set; }
+  
   [Inject] private IAuthApi AuthApi { get; set; } = null!;
   [Inject] private IAuthState AuthState { get; set; } = null!;
   [Inject] private NavigationManager NavManager { get; set; } = null!;
@@ -19,7 +22,14 @@ public partial class Login : ComponentBase
   private readonly LoginModel _model = new();
   private bool _isLoading;
   private string? _error;
-  
+
+  protected override async Task OnInitializedAsync()
+  {
+    _model.Email = Email;
+    
+    await base.OnInitializedAsync();
+  }
+
   private async Task LoginAsync(AuthForm<LoginModel>.SubmitCallbackArgs args)
   {
     _isLoading = true;

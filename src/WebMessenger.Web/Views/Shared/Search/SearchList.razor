@@ -6,12 +6,12 @@
       <div class="search-result__info">
         Результати пошуку
       </div>
-      
+
       <ul>
         @foreach (var item in _items)
         {
           <li class="search-result__item">
-            <SearchItemView Model="item" />
+            <SearchItemView Model="item" OnClick="HandleClickItem"/>
           </li>
         }
       </ul>
@@ -21,10 +21,10 @@
       <div class="search-result__info">
         Результати пошуку
       </div>
-      
+
       <div class="search-result__not-result-wrapper">
         <p class="search-result__not-result">Немає результатів</p>
-        <p class="search-result__not-result-small">За запитом "@(SearchRequest)", немає результатів.</p>
+        <p class="search-result__not-result-small">За запитом "@(_query)", немає результатів.</p>
       </div>
     }
   }

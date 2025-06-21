@@ -5,8 +5,8 @@ namespace WebMessenger.Web.Services.Interfaces;
 
 public interface IChatState
 {
-  public event Action? OnChatSelected;
-  public event Action? OnChatExit;
+  public event Action<ChatModel?>? OnChatSelected;
+  public event Action<ChatModel>? OnChatExit;
   public event Action? OnChangeChats;
   
   public ChatModel? CurrentChat { get; set; }

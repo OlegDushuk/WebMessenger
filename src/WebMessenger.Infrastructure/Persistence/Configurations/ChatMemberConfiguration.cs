@@ -20,7 +20,7 @@ public class ChatMemberConfiguration : IEntityTypeConfiguration<ChatMember>
     builder.HasOne(m => m.User)
       .WithMany()
       .HasForeignKey(x => x.UserId)
-      .OnDelete(DeleteBehavior.SetNull);
+      .OnDelete(DeleteBehavior.NoAction);
     
     builder.HasOne(m => m.Chat)
       .WithMany()

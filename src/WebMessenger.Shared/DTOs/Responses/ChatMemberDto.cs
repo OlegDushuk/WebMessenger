@@ -8,8 +8,5 @@ public class ChatMemberDto
   public bool IsMuted { get; set; }
   public ChatMemberRoleDto Role { get; set; }
   
-  public Guid UserId { get; set; }
-  public string UserName { get; set; } = null!;
-  public string Name { get; set; } = null!;
-  public string? Avatar { get; set; }
+  public UserDto User { get; set; }
 }

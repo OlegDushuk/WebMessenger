@@ -6,7 +6,7 @@ namespace WebMessenger.Application.UseCases.Interfaces;
 
 public interface IAuthService
 {
-  Task<Result> RegisterAsync(RegisterDto dto);
+  Task<Result<RegisterResultDto>> RegisterAsync(RegisterDto dto);
   Task<Result> ConfirmEmailAsync(string token);
   Task<Result> ResendConfirmationAsync(string email);
   Task<Result<AuthDto>> LoginAsync(LoginDto dto);

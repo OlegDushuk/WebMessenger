@@ -1,4 +1,5 @@
-﻿using WebMessenger.Application.Common;
+﻿using Microsoft.Extensions.Configuration;
+using WebMessenger.Application.Common;
 using WebMessenger.Application.Common.Enums;
 using WebMessenger.Application.Common.Helpers;
 using WebMessenger.Application.Common.Helpers.Interfaces;
@@ -22,10 +23,11 @@ public class AuthService(
   IJwtTokenGenerator jwtTokenGenerator,
   IUserRepository userRepository,
   IUserTokenRepository tokenRepository,
-  IEmailService emailService
+  IEmailService emailService,
+  IConfiguration configuration
   ) : IAuthService
 {
-  public async Task<Result> RegisterAsync(RegisterDto dto)
+  public async Task<Result<RegisterResultDto>> RegisterAsync(RegisterDto dto)
   {
     var validationResult = await regValidator.ValidateAsync(dto);
     if (!validationResult.IsValid)
@@ -37,14 +39,14 @@ public class AuthService(
           g => g.First().ErrorMessage
         );
       
-      return Result.Failure(
+      return Result<RegisterResultDto>.Failure(
         ErrorType.Validation,
         errorDictionary
       );
     }
 
     if (await userRepository.ExistsByEmailAsync(dto.Email))
-      return Result.Failure(
+      return Result<RegisterResultDto>.Failure(
         ErrorType.Conflict,
         new
         {
@@ -52,12 +54,14 @@ public class AuthService(
         });
 
     if (await userRepository.ExistsByUserNameAsync(dto.UserName))
-      return Result.Failure(
+      return Result<RegisterResultDto>.Failure(
         ErrorType.Conflict,
         new
         {
           Username = ErrorMessages.UserNameAlreadyInUse
         });
+
+    var isRequireVerification = configuration.GetValue<bool>("UseAccountVerification");
     
     var user = new User
     {
@@ -65,22 +69,28 @@ public class AuthService(
       Email = dto.Email,
       PasswordHash = PasswordHasher.HashPassword(dto.Password),
       Name = dto.Name,
-      IsActive = true,
+      IsActive = !isRequireVerification,
     };
     var id = await userRepository.CreateAsync(user);
+
+    if (isRequireVerification)
+    {
+      var verificationToken = new UserToken
+      {
+        UserId = id,
+        Token = Guid.NewGuid().ToString("N"),
+        ExpiresAt = DateTime.UtcNow.AddDays(2),
+        Type = UserTokenType.ConfirmationEmail
+      };
+      await tokenRepository.CreateAsync(verificationToken);
     
-    // var verificationToken = new UserToken
-    // {
-    //   UserId = id,
-    //   Token = Guid.NewGuid().ToString("N"),
-    //   ExpiresAt = DateTime.UtcNow.AddDays(2),
-    //   Type = UserTokenType.ConfirmationEmail
-    // };
-    // await tokenRepository.CreateAsync(verificationToken);
-    //
-    // await emailService.SendEmailVerificationAsync(user.Email, verificationToken.Token);
+      await emailService.SendEmailVerificationAsync(user.Email, verificationToken.Token);
+    }
     
-    return Result.Success;
+    return Result<RegisterResultDto>.Success(new RegisterResultDto
+    {
+      IsRequiredVerification = isRequireVerification
+    });
   }
   
   public async Task<Result> ConfirmEmailAsync(string token)

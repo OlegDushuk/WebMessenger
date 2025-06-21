@@ -43,6 +43,17 @@ public class ChatService(
         chatDto.OtherMember = mapper.Map<ChatMemberDto>(otherMember);
       }
       
+      var lastMessage = await messageRepository.GetLastByChatId(chatDto.Id);
+      if (lastMessage != null)
+      {
+        var lastMessageSender = await chatMemberRepository.GetMemberByIdAsync(lastMessage.MemberId);
+        if (lastMessageSender != null)
+        {
+          chatDto.LastMessage = mapper.Map<ChatMessageDto>(lastMessage);
+          chatDto.LastMessageSender = mapper.Map<ChatMemberDto>(lastMessageSender);
+        }
+      }
+      
       chatsDto.Add(chatDto);
     }
 
@@ -132,7 +143,10 @@ public class ChatService(
     var creatorMemberDto = mapper.Map<ChatMemberDto>(creatorMember);
     var otherMemberDto = mapper.Map<ChatMemberDto>(otherMember);
     
-    // TODO: Send to other user
+    chatDto.CurrentMember = otherMemberDto;
+    chatDto.OtherMember = creatorMemberDto;
+    
+    await clientConnectionService.NotifyUserCreatedPrivateChat(otherUser.Id, chatDto);
     
     chatDto.CurrentMember = creatorMemberDto;
     chatDto.OtherMember = otherMemberDto;
@@ -318,7 +332,6 @@ public class ChatService(
       Id = Guid.NewGuid(),
       SendAt = DateTime.UtcNow,
       ChatId = member.ChatId,
-      SenderId = member.UserId,
       MemberId = member.Id,
       Content = dto.Content,
       IsRead = false,

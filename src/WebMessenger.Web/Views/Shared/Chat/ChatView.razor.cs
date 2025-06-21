@@ -4,6 +4,7 @@ using Microsoft.JSInterop;
 using WebMessenger.Shared.DTOs.Requests;
 using WebMessenger.Shared.DTOs.Responses;
 using WebMessenger.Web.Models;
+using WebMessenger.Web.Services;
 using WebMessenger.Web.Services.Interfaces;
 using WebMessenger.Web.Utils;
 using WebMessenger.Web.Views.Shared.Modal;
@@ -17,6 +18,7 @@ public partial class ChatView : ComponentBase
   [Inject] public IJSRuntime Js { get; set; } = null!;
   [Inject] public IChatState ChatState { get; set; } = null!;
   [Inject] public IChatApi ChatApi { get; set; } = null!;
+  [Inject] public ChatViewState ChatViewState { get; set; } = null!;
   
   private ModalTemplate _chatInfoModal = null!;
   
@@ -25,30 +27,61 @@ public partial class ChatView : ComponentBase
 
   protected override async Task OnInitializedAsync()
   {
-    ChatState.OnChatSelected += async () =>
+    ChatState.OnChatSelected += async chat =>
     {
-      if (Model == null) return;
+      await InvokeAsync(StateHasChanged);
       
-      Model.OnChangeState += () => { InvokeAsync(StateHasChanged); };
-      await ScrollToBottom();
-        
-      if (Model.FirstSelected)
+      if (chat == null)
+        return;
+      
+      if (chat.FirstSelected)
       {
+        chat.FirstSelected = false;
+        
         await LoadMembers();
         await LoadNextPage();
-      
-        Model.FirstSelected = false;
       }
       
       await InvokeAsync(StateHasChanged);
+      await ScrollToBottom();
+      
+      chat.OnChangeState += HandleChangeState;
+      chat.OnReceiveMessage += HandleReceiveMessage;
     };
     
-    ChatState.OnChatExit += () =>
+    ChatState.OnChatExit += chat =>
     {
-      Model!.OnChangeState -= () => { InvokeAsync(StateHasChanged); };
+      chat.OnChangeState -= HandleChangeState;
+      chat.OnReceiveMessage -= HandleReceiveMessage;
     };
     
     await base.OnInitializedAsync();
+  }
+
+  private async Task CloseChat()
+  {
+    ChatViewState.IsShowing = false;
+    await Task.Delay(300);
+    ChatState.CurrentChat = null;
+  }
+  
+  private void HandleChangeState()
+  {
+    InvokeAsync(StateHasChanged);
+  }
+
+  private void HandleReceiveMessage()
+  {
+    InvokeAsync(ScrollToBottom);
+  }
+  
+  private async Task OnScroll()
+  {
+    var scrollPercentage = await Js.InvokeAsync<double>("getScrollPercentage");
+    if (scrollPercentage < 20)
+    {
+      await LoadNextPage();
+    }
   }
   
   private async Task SendMessage()
@@ -89,15 +122,6 @@ public partial class ChatView : ComponentBase
     Model.CurrentMessage = string.Empty;
   }
   
-  private async Task OnScroll()
-  {
-    var scrollPercentage = await Js.InvokeAsync<double>("getScrollPercentage", "chatContainer");
-    if (scrollPercentage < 20)
-    {
-      await LoadNextPage();
-    }
-  }
-  
   private async Task LoadNextPage()
   {
     if (Model!.AllMessagesLoaded || _isLoadingHistory)
@@ -108,7 +132,7 @@ public partial class ChatView : ComponentBase
     _isLoadingHistory = true;
     
     await HttpHelper.FetchAsync(async () =>
-        await ChatApi.GetChatHistoryAsync(Model.Id, Model.MessagePage, 20),
+        await ChatApi.GetChatHistoryAsync(Model.Id, Model.Messages.Count, 20),
       onSuccess: async response =>
       {
         var history = await response.Content.ReadFromJsonAsync<List<ChatMessageDto>>();
@@ -125,7 +149,6 @@ public partial class ChatView : ComponentBase
           });
           
           Model.AddHistory(messages);
-          Model.MessagePage++;
 
           await SaveScroll(prevHeight);
         }
@@ -151,8 +174,9 @@ public partial class ChatView : ComponentBase
         if (members == null)
           throw new NullReferenceException(nameof(members));
         
-        var memberModels = members.Select(member =>
-          new ChatMemberModel(member));
+        var memberModels = members
+          .Where(member => Model!.Members.All(m => m.Id != member.Id))
+          .Select(member => new ChatMemberModel(member));
         Model!.AddMembers(memberModels);
       },
       onFailure: async response =>
@@ -165,6 +189,16 @@ public partial class ChatView : ComponentBase
   {
     await Js.InvokeVoidAsync("scrollToBottom");
   }
+  
+  private async Task<double> GetScrollValue()
+  {
+    return await Js.InvokeAsync<double>("getScrollValue");
+  }
+  
+  private async Task SetScrollValue(double value)
+  {
+    await Js.InvokeVoidAsync("setScrollValue", value);
+  }
 
   private async Task<double> GetScrollHeight()
   {
@@ -173,6 +207,6 @@ public partial class ChatView : ComponentBase
   
   private async Task SaveScroll(double prevHeight)
   {
-    await Js.InvokeAsync<double>("updateScroll", prevHeight);
+    await Js.InvokeVoidAsync("saveScroll", prevHeight);
   }
 }

@@ -13,9 +13,9 @@ public class ChatApi(
     return await httpClient.GetAsync("api/chat/chats");
   }
 
-  public async Task<HttpResponseMessage> GetChatHistoryAsync(Guid chatId, int page, int pageSize)
+  public async Task<HttpResponseMessage> GetChatHistoryAsync(Guid chatId, int startIndex, int pageSize)
   {
-    return await httpClient.GetAsync($"api/chat/history/{chatId}/{page}/{pageSize}");
+    return await httpClient.GetAsync($"api/chat/history/{chatId}/{startIndex}/{pageSize}");
   }
   
   public async Task<HttpResponseMessage> GetChatMembers(Guid chatId)
@@ -26,6 +26,11 @@ public class ChatApi(
   public async Task<HttpResponseMessage> CreateGroupAsync(CreateGroupChatDto dto)
   {
     return await httpClient.PostAsJsonAsync("api/chat/group", dto);
+  }
+
+  public async Task<HttpResponseMessage> CreatePrivateChatAsync(string otherUserName)
+  {
+    return await httpClient.PostAsync($"api/chat/private?otherUserName={otherUserName}", null);
   }
 
   public async Task<HttpResponseMessage> SendMessageAsync(SendMessageDto dto)

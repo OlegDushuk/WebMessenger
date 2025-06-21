@@ -20,20 +20,16 @@ public class MappingProfile : Profile
     
     CreateMap<ChatMemberRole, ChatMemberRoleDto>().ConvertUsing(src => (ChatMemberRoleDto)(int)src);
     CreateMap<ChatMemberRoleDto, ChatMemberRole>().ConvertUsing(src => (ChatMemberRole)(int)src);
-    CreateMap<ChatMember, ChatMemberDto>()
-      .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
-      .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.User.Name))
-      .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar));
+    CreateMap<ChatMember, ChatMemberDto>();
 
     CreateMap<Chat, ChatDto>();
     
     CreateMap<User, SearchItemDto>()
+      .ForMember(dest => dest.User, opt => opt.MapFrom(src => src))
       .ForMember(dest => dest.Type, opt => opt.MapFrom(src => SearchItemTypeDto.User));
     
     CreateMap<Chat, SearchItemDto>()
-      .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.GroupDetails!.Name))
-      .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.GroupDetails!.Avatar))
-      .ForMember(dest => dest.Bio, opt => opt.MapFrom(src => src.GroupDetails!.Bio))
+      .ForMember(dest => dest.Chat, opt => opt.MapFrom(src => src))
       .ForMember(dest => dest.Type, opt => opt.MapFrom(src => SearchItemTypeDto.Group));
   }
 }

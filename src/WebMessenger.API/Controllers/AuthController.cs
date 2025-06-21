@@ -33,7 +33,7 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
                           "\n\tEmail: {email};\n\tPassword: {password};\nis successful;",
       request.Name, request.UserName, request.Email, request.Password);
     
-    return Ok();
+    return Ok(result.Data);
   }
 
   [HttpPost("verify")]

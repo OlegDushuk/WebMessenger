@@ -14,22 +14,18 @@ public class AuthState(ISessionStorageService storage) : IAuthState
   public async Task<bool> IsAuthenticated()
   {
     var token = await GetToken();
-    return token != null && _expiry > DateTime.UtcNow;
+    if (token == null)
+      return false;
+    
+    var tokenHandler = new JwtSecurityTokenHandler();
+    var tokenData = tokenHandler.ReadJwtToken(token);
+    var expiry = tokenData.ValidTo;
+    
+    return expiry > DateTime.UtcNow;
   }
   
   public async Task Authenticate(string token)
   {
-    var tokenHandler = new JwtSecurityTokenHandler();
-    
-    var tokenData = tokenHandler.ReadJwtToken(token);
-    if (tokenData.Payload.TryGetValue("exp", out var expValue))
-    {
-      if (expValue is long expLong)
-      {
-        _expiry = DateTimeOffset.FromUnixTimeSeconds(expLong).DateTime.ToLocalTime();
-      }
-    }
-
     await storage.SetItemAsync("AccessToken", token);
   }
   
@@ -37,6 +33,4 @@ public class AuthState(ISessionStorageService storage) : IAuthState
   {
     await storage.RemoveItemAsync("AccessToken");
   }
-  
-  private DateTime _expiry = DateTime.UtcNow;
 }

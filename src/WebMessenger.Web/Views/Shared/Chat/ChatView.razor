@@ -1,19 +1,32 @@
 ﻿@if (Model != null)
 {
   <article class="chat-view">
-    <ModalTemplate @ref="_chatInfoModal" Title="Про групу">
-      <ChatInfo />
-    </ModalTemplate>
-    
+    @if (Model.Type == ChatTypeDto.Group)
+    {
+      <ModalTemplate @ref="_chatInfoModal" Title="Про групу">
+        <ChatManagementModal Chat="Model" />
+      </ModalTemplate>
+    }
+    else
+    {
+      <ModalTemplate @ref="_chatInfoModal" Title="Про користувача">
+        <UserProfileView IsOwn="false" Model="Model.OtherMember!.User" />
+      </ModalTemplate>
+    }
+
     <div class="chat-view__header">
       <div class="chat-view__info">
+        <button class="chat-view__close-btn btn btn_opacity btn_icon" @onclick="CloseChat">
+          <LeftArrowIcon/>
+        </button>
+
         <div class="chat-view__avatar-wrapper">
           <Avatar Url="@Model.AvatarUrl" Width="50" Height="50"/>
         </div>
 
         <div>
           <h2 class="chat-view__name user-full-name">@Model.Name</h2>
-          <p class="chat-view__members">@Model.NumberOfMembers members</p>
+          <p class="chat-view__members">@Model.Members.Count members</p>
         </div>
       </div>
 
@@ -40,7 +53,7 @@
         <SendIcon/>
       </button>
     </div>
-    
+
     @* <div class="chat-view__container"> *@
     @*    *@
     @* </div> *@

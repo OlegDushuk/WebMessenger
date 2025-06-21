@@ -8,8 +8,8 @@ public class ChatState : IChatState
 {
   private ChatModel? _currentChat;
   
-  public event Action? OnChatSelected;
-  public event Action? OnChatExit;
+  public event Action<ChatModel?>? OnChatSelected;
+  public event Action<ChatModel>? OnChatExit;
   public event Action? OnChangeChats;
   
   public ChatModel? CurrentChat
@@ -18,11 +18,11 @@ public class ChatState : IChatState
     set
     {
       if (_currentChat != null)
-        OnChatExit?.Invoke();
+        OnChatExit?.Invoke(_currentChat);
       
       _currentChat = value;
-      
-      OnChatSelected?.Invoke();
+
+      OnChatSelected?.Invoke(_currentChat);
     }
   }
 

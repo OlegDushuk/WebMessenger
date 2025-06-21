@@ -1,0 +1,18 @@
+﻿.chat-info__props {
+  margin-bottom: 10px;
+}
+.chat-info__props:last-child {
+  margin-bottom: 0;
+}
+
+.chat-info__manage-panel {
+  display: flex;
+  justify-content: space-between;
+}
+
+.chat-info__members-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}

@@ -11,17 +11,25 @@ public class ChatMessageRepository(WebMessengerDbContext dbContext) : IChatMessa
     return await dbContext.ChatsMessages.FindAsync(id);
   }
 
+  public async Task<ChatMessage?> GetLastByChatId(Guid chatId)
+  {
+    return await dbContext.ChatsMessages
+      .Where(m => m.ChatId == chatId)
+      .OrderByDescending(m => m.SendAt)
+      .FirstOrDefaultAsync();
+  }
+
   public async Task<List<ChatMessage>> GetAllByChatId(Guid chatId)
   {
     return await dbContext.ChatsMessages.Where(cm => cm.ChatId == chatId).ToListAsync();
   }
 
-  public async Task<List<ChatMessage>> GetAllByChatId(Guid chatId, int page, int pageSize)
+  public async Task<List<ChatMessage>> GetAllByChatId(Guid chatId, int startIndex, int pageSize)
   {
     return await dbContext.ChatsMessages
       .Where(m => m.ChatId == chatId)
       .OrderByDescending(m => m.SendAt)
-      .Skip((page - 1) * pageSize)
+      .Skip(startIndex)
       .Take(pageSize)
       .OrderBy(m => m.SendAt)
       .ToListAsync();

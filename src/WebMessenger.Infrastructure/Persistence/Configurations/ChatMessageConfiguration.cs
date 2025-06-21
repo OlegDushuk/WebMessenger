@@ -11,7 +11,6 @@ public class ChatMessageConfiguration : IEntityTypeConfiguration<ChatMessage>
     builder.HasKey(x => x.Id);
     
     builder.HasIndex(x => x.ChatId);
-    builder.HasIndex(x => x.SenderId);
     
     builder.Property(x => x.Id).ValueGeneratedOnAdd();
     builder.Property(x => x.SendAt).IsRequired();
@@ -20,16 +19,11 @@ public class ChatMessageConfiguration : IEntityTypeConfiguration<ChatMessage>
     builder.HasOne<Chat>()
       .WithMany()
       .HasForeignKey(x => x.ChatId)
-      .OnDelete(DeleteBehavior.SetNull);
-    
-    builder.HasOne<User>()
-      .WithMany()
-      .HasForeignKey(x => x.SenderId)
-      .OnDelete(DeleteBehavior.SetNull);
+      .OnDelete(DeleteBehavior.Cascade);
     
     builder.HasOne<ChatMember>()
       .WithMany()
       .HasForeignKey(x => x.MemberId)
-      .OnDelete(DeleteBehavior.SetNull);
+      .OnDelete(DeleteBehavior.NoAction);
   }
 }

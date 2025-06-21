@@ -11,11 +11,11 @@
     <div class="search-item__info">
       @if (Model.Type == SearchItemTypeDto.User)
       {
-        <span>@@@Model.UserName</span>
+        <span>@@@Model.User!.UserName</span>
       }
       else
       {
-        @Model.Bio
+        @Model.Chat!.Bio
       }
     </div>
   </div>

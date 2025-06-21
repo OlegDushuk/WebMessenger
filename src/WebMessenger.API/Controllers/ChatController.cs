@@ -97,6 +97,6 @@ public class ChatController(IChatService chatService) : ControllerBase
     
     var result = await chatService.CreatePrivateChat(userEmail, otherUserName);
     
-    return Ok(result);
+    return Ok(result.Data);
   }
 }

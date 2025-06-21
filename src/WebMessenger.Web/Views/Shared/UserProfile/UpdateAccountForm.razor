@@ -4,16 +4,14 @@
   </h4>
 
   <div class="form__item">
-    <InputText class="field"
-               id="username"
+    <InputText class="field field__sm"
                type="text"
                @bind-Value="_model.UserName"
                placeholder="Нове ім'я користувача..."/>
   </div>
 
   <div class="form__item">
-    <InputText class="field"
-               id="name"
+    <InputText class="field field__sm"
                type="text"
                @bind-Value="_model.Name"
                placeholder="Нове ім'я..."/>
@@ -21,7 +19,6 @@
 
   <div class="form__item">
     <InputTextArea class="text-area"
-                   id="bio"
                    @bind-Value="_model.Bio"
                    placeholder="Опис профілю..."/>
   </div>

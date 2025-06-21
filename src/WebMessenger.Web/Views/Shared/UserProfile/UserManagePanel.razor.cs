@@ -23,7 +23,7 @@ public partial class UserManagePanel : ComponentBase
       onSuccess: async _ =>
       {
         await AuthState.Logout();
-        NavManager.NavigateTo("/auth/login");
+        NavManager.NavigateTo("/auth/login", true);
       },
       onFailure: response =>
       {

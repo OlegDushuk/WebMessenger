@@ -10,11 +10,28 @@ public class ChatModel
     Id = dto.Id;
     Type = dto.Type;
     CurrentMember = new ChatMemberModel(dto.CurrentMember);
+    NumberOfMessages = dto.NumberOfMessages;
+
+    var lastMessageSender = dto.LastMessageSender != null ? new ChatMemberModel(dto.LastMessageSender) : null;
+    if (lastMessageSender != null)
+    {
+      Members.Add(lastMessageSender);
+
+      var lastMessage = dto.LastMessage != null
+        ? new MessageModel(dto.LastMessage, lastMessageSender, lastMessageSender.UserId == CurrentMember.UserId)
+        : null;
+
+      if (lastMessage != null)
+      {
+        Messages.Add(lastMessage);
+      }
+    }
     
     if (dto.Type == ChatTypeDto.Personal)
     {
-      AvatarUrl = dto.OtherMember!.Avatar;
-      Name = dto.OtherMember!.Name;
+      AvatarUrl = dto.OtherMember!.User.Avatar;
+      Name = dto.OtherMember!.User.Name;
+      OtherMember = new ChatMemberModel(dto.OtherMember);
     }
     else
     {
@@ -26,8 +43,10 @@ public class ChatModel
   }
   
   public Guid Id { get; set; }
+  public int NumberOfMessages { get; set; }
   public ChatTypeDto Type { get; set; }
   public ChatMemberModel CurrentMember { get; set; }
+  public ChatMemberModel? OtherMember { get; set; }
   public string Name { get; set; }
   public string? AvatarUrl { get; set; }
   
@@ -36,16 +55,15 @@ public class ChatModel
   
   public string? CurrentMessage { get; set; }
   public bool FirstSelected { get; set; } = true;
-  public int MessagePage { get; set; } = 1;
   public bool AllMessagesLoaded { get; set; }
   
   public List<MessageModel> Messages { get; set; } = [];
   public MessageModel? LastMessage => Messages.LastOrDefault();
   
   public List<ChatMemberModel> Members { get; set; } = [];
-  public int NumberOfMembers => Members.Count;
-
+  
   public Action? OnChangeState { get; set; }
+  public Action? OnReceiveMessage { get; set; }
 
   public void AddNewMessage(ChatMessageDto dto)
   {
@@ -54,6 +72,7 @@ public class ChatModel
     Messages.Add(model);
     
     OnChangeState?.Invoke();
+    OnReceiveMessage?.Invoke();
   }
   
   public void AddHistory(IEnumerable<MessageModel> messages)

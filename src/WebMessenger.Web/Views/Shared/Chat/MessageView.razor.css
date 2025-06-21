@@ -70,8 +70,13 @@
 .message-view__details-item:last-child {
   margin-right: 0;
 }
-@media (max-width: 1200px) {
+@media (max-width: 1320px) {
   .message-view__body {
     max-width: 300px;
+  }
+}
+@media (max-width: 920px) {
+  .message-view__body {
+    max-width: 250px;
   }
 }

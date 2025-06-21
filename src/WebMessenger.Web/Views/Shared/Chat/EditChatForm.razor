@@ -1,0 +1,41 @@
+﻿<section class="modal__section">
+  <EditForm Model="Model" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+
+    <div class="form__item">
+      <label class="form__label">Назва чату</label>
+      <InputText class="field"
+                 @bind-Value="Model.Name"/>
+      <ValidationMessage class="auth-page__field-error" For="() => Model.Name" />
+    </div>
+
+    <div class="form__item">
+      <label class="form__label">Опис чату</label>
+      <InputTextArea class="text-area"
+                     @bind-Value="Model.Bio"/>
+    </div>
+
+    <div class="form__item">
+      <label class="form__label">Тип чату</label>
+      <InputRadioList
+        TEnum="GroupTypeDto"
+        DisplayNames="@(new Dictionary<GroupTypeDto, string>
+                      {
+                        { GroupTypeDto.Public, "Відкритий" },
+                        { GroupTypeDto.Private, "Приватний" },
+                      })"
+        @bind-Value="@Model.Type" />
+    </div>
+
+    <button class="btn" type="submit">
+      @if (_isLoading)
+      {
+        <span>Зачекайте...</span>
+      }
+      else
+      {
+        <span>Створити</span>
+      }
+    </button>
+  </EditForm>
+</section>

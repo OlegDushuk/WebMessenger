@@ -1,7 +1,9 @@
 ﻿@page "/"
+@using WebMessenger.Web.Services
 
 @inject IAuthState AuthState
 @inject IUserState UserState
+@inject ChatViewState ChatViewState
 
 <PageTitle>Web messenger - @_title</PageTitle>
 
@@ -10,13 +12,20 @@
   <main class="main-page">
     <CascadingValue Value="_modalView" Name="GlobalModal">
       <ModalView @ref="_modalView" />
-      
+        
       <ModalTemplate @ref="_profile" Title="Мій профіль">
-        <UserProfileView Model="UserState.User" IsOwn="true" />
+        <UserProfileView
+          Model="_selectedUser"
+          IsOwn="_selectedUser.Id == UserState.User.Id"
+          OnToChat="CreatePrivateChat" />
       </ModalTemplate>
       
       <ModalTemplate @ref="_createChatForm" Title="Створити новий чат">
-        <CreateChatForm />
+        <EditChatForm Model="_createGroupModel" OnValidSubmit="HandleCreateChat" />
+      </ModalTemplate>
+
+      <ModalTemplate @ref="_chatInfo" Title="Про групу">
+        <ChatManagementModal Chat="_selectedChat" />
       </ModalTemplate>
 
       <aside class="main-page__sidebar sidebar">
@@ -45,7 +54,7 @@
                 </div>
 
                 <div class="profile-bar__right">
-                  <button class="btn btn_opacity btn_icon" @onclick="() => { _profile.Open(); }">
+                  <button class="btn btn_opacity btn_icon" @onclick="OpenUserProfile">
                     <MenuBurgerIcon/>
                   </button>
 
@@ -58,10 +67,10 @@
               <div class="sidebar__tools">
                 <div class="sidebar__search-wrapper">
                   <input class="field"
-                             type="text"
-                             @bind="_searchQuery"
-                             @bind:event="oninput"
-                             placeholder="Пошук..."/>
+                         type="text"
+                         @bind="_searchQuery"
+                         @oninput="HandleSearchQueryChange"
+                         placeholder="Пошук..."/>
                 </div>
 
                 <div class="sidebar__create-chat-wrapper">
@@ -80,13 +89,13 @@
             }
             else
             {
-              <SearchList SearchRequest="@_searchQuery" />
+              <SearchList OnClickItem="HandleClickItem" @ref="_searchList" />
             }
           </div>
         </div>
       </aside>
 
-      <div class="main-page__content">
+      <div class="main-page__content @(ChatViewState.IsShowing ? "show" : "")">
         <ChatView />
       </div>
     </CascadingValue>

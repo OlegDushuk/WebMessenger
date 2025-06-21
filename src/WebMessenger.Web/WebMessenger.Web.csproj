@@ -18,10 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <_ContentIncludedByDefault Remove="Layout\MainLayout.razor" />
     <_ContentIncludedByDefault Remove="Layout\NavMenu.razor" />
     <_ContentIncludedByDefault Remove="wwwroot\css\app.css" />

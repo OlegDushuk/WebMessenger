@@ -1,0 +1,109 @@
+﻿@if (_currentView == "info")
+{
+<section class="modal__section">
+  <InfoBar
+    AvatarUrl="@Chat.AvatarUrl"
+    Name="@Chat.Name"
+    Bio="@Chat.Bio"/>
+</section>
+
+<section class="modal__section">
+  <div class="chat-info__props">
+    <strong>@Chat.Members.Count</strong>
+    учасників
+  </div>
+
+  <div class="chat-info__props">
+    <strong>@Chat.NumberOfMessages</strong>
+    повідомлень
+  </div>
+</section>
+
+<section class="modal__section">
+  @if (Chat.CurrentMember.Role == ChatMemberRoleDto.User)
+  {
+  <button class="btn btn_opacity">
+    <LogoutIcon />
+    Покинути
+  </button>
+  }
+  else if (Chat.CurrentMember.Role == ChatMemberRoleDto.Admin)
+  {
+  <div class="chat-info__manage-panel">
+    <button class="btn btn_opacity" @onclick="ToEdit">
+      Редагувати
+    </button>
+
+    <button class="btn btn_opacity">
+      Видалити
+    </button>
+  </div>
+  }
+</section>
+
+<section class="modal__section">
+  <div class="chat-info__members-head">
+    <p>Учасники</p>
+
+    @if (Chat.CurrentMember.Role == ChatMemberRoleDto.Admin)
+    {
+    <button class="btn btn_opacity" @onclick="ToAddMember">
+      Додати
+    </button>
+    }
+  </div>
+
+  <ul class="chat-info__members-list">
+    @foreach (var member in Chat.Members)
+    {
+    <ChatMemberView Member="member" OnClickLink="ToMember" />
+    }
+  </ul>
+</section>
+}
+else if (_currentView == "edit")
+{
+  <section class="modal__section">
+    <div class="modal__second-header">
+      <button class="btn btn_opacity btn_icon" @onclick="ToInfo">
+        <LeftArrowIcon/>
+      </button>
+      
+      <h3>
+        Редагувати групу
+      </h3>
+    </div>
+  </section>
+  
+  <EditChatForm Model="_editChatModel" />
+}
+else if (_currentView == "addMember")
+{
+  <section class="modal__section">
+    <div class="modal__second-header">
+      <button class="btn btn_opacity btn_icon" @onclick="ToInfo">
+        <LeftArrowIcon/>
+      </button>
+      
+      <h3>
+        Додати учасника
+      </h3>
+    </div>
+  </section>
+}
+else if (_currentView == "member")
+{
+  <section class="modal__section">
+    <div class="modal__second-header">
+      <button class="btn btn_opacity btn_icon" @onclick="ToInfo">
+        <LeftArrowIcon/>
+      </button>
+      
+      <h3>
+        Про користувача
+      </h3>
+    </div>
+  </section>
+  
+  <UserProfileView Model="_selectedMember.User" IsOwn="_selectedMember.UserId == UserState.User.Id" />
+}

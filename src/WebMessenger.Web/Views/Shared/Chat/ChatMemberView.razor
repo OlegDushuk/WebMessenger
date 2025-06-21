@@ -1,0 +1,23 @@
+﻿<article class="member">
+  <div class="member__container">
+    <button class="member__left" @onclick="HandleMemberClick">
+      <div class="member__avatar">
+        <Avatar Url="@Member.Avatar" Width="50" Height="50"/>
+      </div>
+
+      <div class="member__content">
+        <div class="member__name">
+          @Member.Name
+        </div>
+
+        <div class="member__info">
+          <span>@@@Member.User!.UserName</span>
+        </div>
+      </div>
+    </button>
+    
+    <div class="member__right">
+      
+    </div>
+  </div>
+</article>

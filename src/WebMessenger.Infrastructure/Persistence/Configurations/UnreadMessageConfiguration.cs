@@ -13,7 +13,7 @@ public class UnreadMessageConfiguration : IEntityTypeConfiguration<UnreadMessage
     builder.HasOne<ChatMember>()
       .WithMany()
       .HasForeignKey(x => x.MemberId)
-      .OnDelete(DeleteBehavior.Cascade);
+      .OnDelete(DeleteBehavior.NoAction);
     
     builder.HasOne<ChatMessage>()
       .WithMany()

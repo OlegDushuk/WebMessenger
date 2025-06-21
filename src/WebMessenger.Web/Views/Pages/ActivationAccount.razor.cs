@@ -17,6 +17,13 @@ public partial class ActivationAccount : ComponentBase
   private bool _isSuccess;
   private string? _error;
   
+  protected override async Task OnInitializedAsync()
+  {
+    _model.Email = Email;
+    
+    await base.OnInitializedAsync();
+  }
+  
   private async Task SendEmail(AuthForm<EmailModel>.SubmitCallbackArgs args)
   {
     _isLoading = true;

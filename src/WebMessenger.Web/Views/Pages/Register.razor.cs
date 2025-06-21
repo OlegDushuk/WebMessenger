@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using WebMessenger.Shared.DTOs.Requests;
+using WebMessenger.Shared.DTOs.Responses;
 using WebMessenger.Web.Models;
 using WebMessenger.Web.Services.Interfaces;
 using WebMessenger.Web.Utils;
@@ -30,10 +31,16 @@ public partial class Register : ComponentBase
         Email = _model.Email ?? string.Empty,
         Password = _model.Password ?? string.Empty,
       }),
-      onSuccess: _ =>
+      onSuccess: async response =>
       {
-        NavManager.NavigateTo($"auth/activation?email={_model.Email}");
-        return Task.CompletedTask;
+        var result = await response.Content.ReadFromJsonAsync<RegisterResultDto>();
+        if (result == null)
+          throw new NullReferenceException(nameof(result));
+        
+        if (result.IsRequiredVerification)
+          NavManager.NavigateTo($"auth/activation?email={_model.Email}");
+        else
+          NavManager.NavigateTo($"auth/login?email={_model.Email}");
       },
       onFailure: async response =>
       {

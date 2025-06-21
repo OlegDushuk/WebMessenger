@@ -27,7 +27,7 @@ public partial class UpdateAccountForm : ComponentBase
         Name = _model.Name,
         Bio = _model.Bio,
       }),
-      onSuccess: _ =>
+      onSuccess: async _ =>
       {
         if (_model.UserName != null)
           UserState.User!.UserName = _model.UserName;
@@ -40,8 +40,8 @@ public partial class UpdateAccountForm : ComponentBase
 
         _model = new UpdateAccountDataModel();
         _isSuccess = true;
-        
-        return Task.CompletedTask;
+
+        await InvokeAsync(StateHasChanged);
       },
       onFailure: response =>
       {

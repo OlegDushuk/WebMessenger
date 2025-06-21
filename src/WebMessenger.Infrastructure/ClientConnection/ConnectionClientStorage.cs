@@ -2,26 +2,28 @@
 
 public class ConnectionClientStorage
 {
-  private readonly Dictionary<Guid, string> _connections = new();
+  private class UserConnection(Guid userId, string connectionId)
+  {
+    public Guid UserId { get; } = userId;
+    public string ConnectionId { get; } = connectionId;
+  }
+  
+  private readonly List<UserConnection> _connections = [];
   
   public void AddUser(Guid userId, string connectionId)
   {
-    _connections.Add(userId, connectionId);
-  }
-  
-  public void RemoveUser(Guid userId)
-  {
-    _connections.Remove(userId);
+    _connections.Add(new UserConnection(userId, connectionId));
   }
 
   public void RemoveUser(string connectionId)
   {
-    var item = _connections.FirstOrDefault(kv => kv.Value == connectionId);
-    _connections.Remove(item.Key);
+    var item = _connections.FirstOrDefault(uc => uc.ConnectionId == connectionId);
+    if (item != null)
+      _connections.Remove(item);
   }
   
   public string? GetConnectionId(Guid userId)
   {
-    return _connections.TryGetValue(userId, out var value) ? value : null;
+    return _connections.FirstOrDefault(uc => uc.UserId == userId)?.ConnectionId;
   }
 }

@@ -9,8 +9,6 @@ public class EmailSettings
 {
   public string SmtpServer { get; set; } = string.Empty;
   public int SmtpPort { get; set; }
-  public string SenderEmail { get; set; } = string.Empty;
-  public string SenderName { get; set; } = string.Empty;
   public string SmtpUsername { get; set; } = string.Empty;
   public string SmtpPassword { get; set; } = string.Empty;
   public bool EnableSsl { get; set; }
@@ -62,7 +60,7 @@ public class EmailService(IOptions<EmailSettings> emailSettings) : IEmailService
     client.EnableSsl = _emailSettings.EnableSsl;
     
     using var message = new MailMessage();
-    message.From = new MailAddress(_emailSettings.SenderEmail, _emailSettings.SenderName);
+    message.From = new MailAddress(_emailSettings.SmtpUsername, "WebMessenger");
     message.To.Add(to);
     message.Subject = subject;
     message.Body = htmlBody;
